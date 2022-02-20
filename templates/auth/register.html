@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    </head>
+    <body>
+        <div class="container">
+            <p>
+                <form action="" method="POST">
+                    <p>Username <input type="text" name="username"></p>
+                    <p>Password <input type="password" name="password"></p>
+                    <p><input type="submit" value="Register"></p>
+                </form>
+            </p>
+            <p>
+                <h3>Already have an account? <a href="/login{% if request.args.get('next', None) %}?next={{ request.args.get('next') }}{% endif %}">Login</a></h3>
+            </p>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+    </body>
+</html>
