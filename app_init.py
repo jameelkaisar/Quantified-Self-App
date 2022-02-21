@@ -2,6 +2,8 @@ from flask import Flask
 
 from config.config import DevConfig
 from database.database import db
+from models.models import TrackerTypes
+from sqlalchemy.exc import IntegrityError
 
 
 app = Flask(__name__)
@@ -15,3 +17,12 @@ from views.views import *
 
 db.create_all()
 db.session.commit()
+
+types = ["Boolean", "Integer", "Decimal", "Duration", "Single Select", "Multi Select"]
+for t in types:
+    try:
+        tracker_type = TrackerTypes(tt_name=t)
+        db.session.add(tracker_type)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()

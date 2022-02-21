@@ -34,12 +34,21 @@ class TrackerModel(db.Model):
     t_user = db.Column(db.Integer(), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
 
-# Eg: Numerical, Multiple Choice
+# Numerical, Multi Select
 class TrackerTypes(db.Model):
     __tablename__ = "tracker_types"
 
     tt_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     tt_name = db.Column(db.String(64), unique=True, nullable=False)
+
+
+# Metre, Kilogram, Celcius, Farenheit
+class TrackerUnit(db.Model):
+    __tablename__ = "tracker_unit"
+
+    tu_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    tu_name = db.Column(db.String(16), nullable=False)
+    tu_tracker = db.Column(db.Integer(), db.ForeignKey("trackers.t_id", ondelete="CASCADE"), nullable=False)
 
 
 # Arm Exercise, Back Exercise, Neck Exercise
@@ -79,7 +88,7 @@ class TrackerValueNum(db.Model):
     tv_log = db.Column(db.Integer(), db.ForeignKey("tracker_logs.tl_id", ondelete="CASCADE"), nullable=False)
 
 
-# Single Choice Values
+# Single Select Values
 class TrackerValueSin(db.Model):
     __tablename__ = "tracker_val_sin"
 
@@ -88,7 +97,7 @@ class TrackerValueSin(db.Model):
     tv_log = db.Column(db.Integer(), db.ForeignKey("tracker_logs.tl_id", ondelete="CASCADE"), nullable=False)
 
 
-# Multiple Choice Values
+# Multi Select
 class TrackerValueMul(db.Model):
     __tablename__ = "tracker_val_mul"
 
@@ -96,7 +105,7 @@ class TrackerValueMul(db.Model):
     tv_log = db.Column(db.Integer(), db.ForeignKey("tracker_logs.tl_id", ondelete="CASCADE"), nullable=False)
 
 
-# Multiple Choice Value Options
+# Multi Select Values
 class TrackerValueMulOpts(db.Model):
     __tablename__ = "tracker_val_mul_opts"
 

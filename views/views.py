@@ -4,7 +4,7 @@ sys.path.append("../models")
 sys.path.append("../database")
 
 
-from models.models import UserModel
+from models.models import UserModel, TrackerTypes
 from database.database import db
 
 from flask import Flask
@@ -18,10 +18,31 @@ from flask_login import login_user
 from flask_login import logout_user
 
 
-@app.route("/", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
 @login_required
 def home():
-    return render_template("core/home.html", user=current_user, title="Home", text="Hello")
+    if request.method == "POST":
+        t_name = request.form.get("t_name", None)
+        t_desc = request.form.get("t_desc", None)
+        t_type = request.form.get("t_type", None)
+        to_total = request.form.get("to_total", None)
+
+        print(t_name)
+        print(t_desc)
+        print(t_type)
+        print(to_total)
+
+        t_unit = request.form.get("t_unit", None)
+        print(t_unit)
+
+        t_options = []
+        for i in range(int(to_total)):
+            t_option = request.form.get(f"t_option[{i}]", None)
+            t_options.append(t_option)
+        print(t_options)
+
+    tracker_types = TrackerTypes.query.all()
+    return render_template("core/home.html", user=current_user, title="Home", tracker_types=tracker_types)
 
 
 @app.route("/logout")
