@@ -4,7 +4,8 @@ sys.path.append("../models")
 sys.path.append("../database")
 
 
-from models.models import UserModel, TrackerTypes
+from models.models import UserModel
+from models.models import TrackerModel, TrackerTypes, TrackerUnit, TrackerOptions
 from database.database import db
 
 from flask import Flask
@@ -23,31 +24,83 @@ from flask_login import logout_user
 @login_required
 def home():
     if request.method == "POST":
-        t_name = request.form.get("t_name", None)
-        t_desc = request.form.get("t_desc", None)
-        t_type = request.form.get("t_type", None)
-        to_total = request.form.get("to_total", None)
+        t_name = request.form.get("t_name", "")
+        if not (0 < len(t_name) <= 64):
+            flash("Invalid Tracker Name", "danger")
+            return redirect(request.full_path)
 
-        print(t_name)
-        print(t_desc)
-        print(t_type)
-        print(to_total)
+        t_desc = request.form.get("t_desc", "")
+        if not (0 < len(t_desc) <= 256):
+            flash("Invalid Tracker Description", "danger")
+            return redirect(request.full_path)
 
-        t_unit = request.form.get("t_unit", None)
-        print(t_unit)
+        t_type = request.form.get("t_type", "")
+        tracker_types = TrackerTypes.query.all()
+        if not (t_type.isdigit() and int(t_type) in map(lambda x: x.tt_id, tracker_types)):
+            flash("Invalid Tracker Type", "danger")
+            return redirect(request.full_path)
 
-        t_options = []
-        for i in range(int(to_total)):
-            t_option = request.form.get(f"t_option[{i}]", None)
-            t_options.append(t_option)
-        print(t_options)
+        tt_id = int(t_type)
+        tt_name = list(filter(lambda x: x.tt_id == tt_id, tracker_types))[0].tt_name
 
-        flash("Some important message!", "primary")
-        flash("Some important message!", "secondary")
-        flash("Some important message!", "success")
-        flash("Some important message!", "danger")
-        flash("Some important message!", "warning")
-        flash("Some important message!", "info")
+        if tt_name in ["Boolean"]:
+            flash("Boolean", "success")
+
+            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=current_user.id)
+            db.session.add(tracker)
+            db.session.commit()
+            flash("Tracker Added", "success")
+
+        elif tt_name in ["Integer", "Decimal"]:
+            flash("Integer/Decimal", "success")
+
+            t_unit = request.form.get("t_unit", "")
+            if not (0 < len(t_unit) <= 16):
+                flash("Invalid Tracker Unit", "danger")
+                return redirect(request.full_path)
+            flash("Unit", "success")
+
+            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=current_user.id)
+            db.session.add(tracker)
+            db.session.commit()
+            unit = TrackerUnit(tu_name=t_unit, tu_tracker=tracker.t_id)
+            db.session.add(unit)
+            db.session.commit()
+            flash("Tracker Added", "success")
+
+        elif tt_name in ["Duration"]:
+            flash("Duration", "success")
+
+            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=current_user.id)
+            db.session.add(tracker)
+            db.session.commit()
+            flash("Tracker Added", "success")
+
+        elif tt_name in ["Single Select", "Multi Select"]:
+            flash("Single Select/Multi Select", "success")
+
+            to_total = request.form.get("to_total", "")
+            if not (to_total.isdigit() and int(to_total) > 0):
+                flash("Invalid Tracker Options", "danger")
+                return redirect(request.full_path)
+
+            t_options = []
+            for i in range(int(to_total)):
+                t_option = request.form.get(f"t_option[{i}]", "")
+                if not (0 < len(t_option) <= 64):
+                    flash("Invalid Tracker Options", "danger")
+                    return redirect(request.full_path)
+                t_options.append(t_option)
+            flash("Options", "success")
+
+            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=current_user.id)
+            db.session.add(tracker)
+            db.session.commit()
+            for i in range(int(to_total)):
+                option = TrackerOptions(to_name=t_options[i], to_tracker=tracker.t_id)
+                db.session.add(option)
+            db.session.commit()
+            flash("Tracker Added", "success")
 
         return redirect(request.full_path)
 
