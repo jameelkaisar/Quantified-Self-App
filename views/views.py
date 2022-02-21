@@ -11,6 +11,7 @@ from flask import Flask
 from flask import request
 from flask import redirect
 from flask import render_template
+from flask import flash
 from flask import current_app as app
 from flask_login import login_required
 from flask_login import current_user
@@ -40,6 +41,15 @@ def home():
             t_option = request.form.get(f"t_option[{i}]", None)
             t_options.append(t_option)
         print(t_options)
+
+        flash("Some important message!", "primary")
+        flash("Some important message!", "secondary")
+        flash("Some important message!", "success")
+        flash("Some important message!", "danger")
+        flash("Some important message!", "warning")
+        flash("Some important message!", "info")
+
+        return redirect(request.full_path)
 
     tracker_types = TrackerTypes.query.all()
     return render_template("core/home.html", user=current_user, title="Home", tracker_types=tracker_types)
