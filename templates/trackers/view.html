@@ -31,6 +31,55 @@
             </form>
         </div>
 
+        <div class="container">
+            <form action="" method="POST">
+                <input type="hidden" name="action" value="2">
+                <p>
+                    <label for="tl_time">Time:</label>
+                    <input type="datetime-local" id="tl_time" name="tl_time" required>
+                </p>
+                <p>
+                    <label for="tl_note">Note:</label>
+                    <textarea rows="5" id="tl_note" name="t_desc" maxlength="256"></textarea>
+                </p>
+                {% if tracker.t_type_name.tt_name == "Boolean" %}
+                <label for="tl_val">Value:</label>
+                <select id="tl_val" name="tl_val" required>
+                    <option value="1" selected>Yes</option>
+                    <option value="0">No</option>
+                </select>
+                {% elif tracker.t_type_name.tt_name == "Integer" %}
+                <label for="tl_val">Value:</label>
+                <input type="number" step="1" id="tl_val" name="tl_val" required>{{ tracker.t_unit.tu_name }}
+                {% elif tracker.t_type_name.tt_name == "Decimal" %}
+                <label for="tl_val">Value:</label>
+                <input type="number" step="0.01" id="tl_val" name="tl_val" required>{{ tracker.t_unit.tu_name }}
+                {% elif tracker.t_type_name.tt_name == "Duration" %}
+                <label for="tl_val_h">Hours:</label>
+                <input type="number" step="1" min="0" max="100" id="tl_val_h" name="tl_val_h" value="0" required>
+                <label for="tl_val_m">Minutes:</label>
+                <input type="number" step="1" min="0" max="59" id="tl_val_m" name="tl_val_m" value="0" required>
+                <label for="tl_val_s">Seconds:</label>
+                <input type="number" step="1" min="0" max="59" id="tl_val_s" name="tl_val_s" value="0" required>
+                {% elif tracker.t_type_name.tt_name == "Single Select" %}
+                <label for="tl_val">Value:</label>
+                <select id="tl_val" name="tl_val" required>
+                    <option value="" selected hidden disabled>Choose Option</option>
+                    {% for option in tracker.t_options %}
+                    <option value="{{ loop.index0 }}">{{ option.to_name }}</option>
+                    {% endfor %}
+                </select>
+                {% elif tracker.t_type_name.tt_name == "Multi Select" %}
+                {% for option in tracker.t_options %}
+                <input type="checkbox" name="t_val[{{ loop.index0 }}]">
+                <label for="t_val[{{ loop.index0 }}]">{{ option.to_name }}</label><br>
+                {% endfor %}
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Add Log</button>
+            </form>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/add_log.js')}}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
         <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
     </body>

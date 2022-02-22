@@ -93,7 +93,7 @@ def trackers_edit():
             return redirect(request.full_path)
 
         t_desc = request.form.get("t_desc", "")
-        if not (0 < len(t_desc) <= 256):
+        if not (0 <= len(t_desc) <= 256):
             flash("Invalid Tracker Description", "danger")
             return redirect(request.full_path)
 
@@ -189,7 +189,7 @@ def trackers_add():
             return redirect(request.full_path)
 
         t_desc = request.form.get("t_desc", "")
-        if not (0 < len(t_desc) <= 256):
+        if not (0 <= len(t_desc) <= 256):
             flash("Invalid Tracker Description", "danger")
             return redirect(request.full_path)
 
