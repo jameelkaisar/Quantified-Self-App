@@ -33,6 +33,10 @@ class TrackerModel(db.Model):
     t_type = db.Column(db.Integer(), db.ForeignKey("tracker_types.tt_id", ondelete="CASCADE"), nullable=False)
     t_user = db.Column(db.Integer(), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
+    t_type_name = db.relationship("TrackerTypes", uselist=False)
+    t_unit = db.relationship("TrackerUnit", uselist=False)
+    t_options = db.relationship("TrackerOptions")
+
 
 # Numerical, Multi Select
 class TrackerTypes(db.Model):

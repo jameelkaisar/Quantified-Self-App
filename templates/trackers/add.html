@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Add Tracker - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    </head>
+    <body>
+        {% include 'components/messages.html' %}
+
+        <div class="container">
+            <form action="" method="POST">
+                <p>
+                    <label for="t_name">Tracker Name:</label>
+                    <input type="text" id="t_name" name="t_name" maxlength="64" required>
+                </p>
+                <p>
+                    <label for="t_desc">Tracker Description:</label>
+                    <textarea rows="5" id="t_desc" name="t_desc" maxlength="256" required></textarea>
+                </p>
+                <p>
+                    <div style="display: inline-block;">
+                        <label for="t_type">Tracker Type:</label>
+                        <select id="t_type" name="t_type" onchange="setTypeOptions(this);" required>
+                            <option value="" selected hidden disabled>Choose Tracker Type</option>
+                            {% for tracker_type in tracker_types %}
+                            <option value="{{ tracker_type.tt_id }}">{{ tracker_type.tt_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="t_unit_block" style="display: inline-block;"></div>
+                </p>
+                <input type="hidden" id="to_total" name="to_total" value="0">
+                <p id="t_options"></p>
+                <p id="t_options_control" style="display: none;">
+                    <button id="t_options_add" onclick="addOption(); return false;">Add Option</button>
+                    <button id="t_options_rem" onclick="remOption(); return false;" disabled>Remove Option</button>
+                </p>
+                <p>
+                    <input type="reset" value="Reset" onclick="resetForm();">
+                    <input type="submit" value="Add Tracker">
+                </p>
+            </form>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/add_tracker.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+    </body>
+</html>

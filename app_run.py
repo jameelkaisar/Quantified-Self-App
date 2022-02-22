@@ -10,6 +10,8 @@ app.config.from_object(DevConfig)
 db.init_app(app)
 login.init_app(app)
 login.login_view = "login"
+login.login_message = "Please log in to access this page."
+login.login_message_category = "info"
 app.app_context().push()
 
 

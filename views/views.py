@@ -20,9 +20,62 @@ from flask_login import login_user
 from flask_login import logout_user
 
 
-@app.route("/", methods=["GET", "POST"])
-@login_required
+@app.route("/", methods=["GET"])
 def home():
+    return render_template("core/home.html", user=current_user)
+
+
+@app.route("/trackers", methods=["GET"])
+@login_required
+def trackers():
+    # trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
+    trackers = db.session.query(TrackerModel.t_id, TrackerModel.t_name, TrackerModel.t_desc).filter(TrackerModel.t_user == current_user.id).all()
+    return render_template("trackers/main.html", user=current_user, trackers=trackers)
+
+
+@app.route("/trackers/view", methods=["GET", "POST"])
+@login_required
+def trackers_view():
+    t_id = request.args.get("id", "")
+    if not (t_id.isdigit()):
+        flash("Invalid Tracker", "danger")
+        return redirect("/trackers")
+
+    if request.method == "POST":
+        # Action 1: Delete Tracker
+        # Action 2: Add Tracker Log
+        pass
+
+    tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
+    if tracker:
+        return render_template("trackers/view.html", user=current_user, tracker=tracker)
+    else:
+        flash("Invalid Tracker", "danger")
+        return redirect("/trackers")
+
+
+@app.route("/trackers/edit", methods=["GET", "POST"])
+@login_required
+def trackers_edit():
+    t_id = request.args.get("id", "")
+    if not (t_id.isdigit()):
+        flash("Invalid Tracker", "danger")
+        return redirect("/trackers")
+
+    if request.method == "POST":
+        pass
+
+    tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
+    if tracker:
+        return render_template("trackers/edit.html", user=current_user, tracker=tracker)
+    else:
+        flash("Invalid Tracker", "danger")
+        return redirect("/trackers")
+
+
+@app.route("/trackers/add", methods=["GET", "POST"])
+@login_required
+def trackers_add():
     if request.method == "POST":
         t_name = request.form.get("t_name", "")
         if not (0 < len(t_name) <= 64):
@@ -105,7 +158,7 @@ def home():
         return redirect(request.full_path)
 
     tracker_types = TrackerTypes.query.all()
-    return render_template("core/home.html", user=current_user, title="Home", tracker_types=tracker_types)
+    return render_template("trackers/add.html", user=current_user, tracker_types=tracker_types)
 
 
 @app.route("/logout")

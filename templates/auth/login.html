@@ -8,19 +8,21 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
     </head>
     <body>
+        {% include 'components/messages.html' %}
+
         <div class="container">
-            <p>
-                <form action="" method="POST">
-                    <p>Username <input type="text" name="username"></p>
-                    <p>Password <input type="password" name="password"></p>
-                    <p><input type="submit" value="Login"></p>
-                </form>
-            </p>
-            <p>
-                <h3>Don't have an account? <a href="/register{% if request.args.get('next', None) %}?next={{ request.args.get('next') }}{% endif %}">Register</a></h3>
-            </p>
+            <form action="" method="POST">
+                <p>Username <input type="text" name="username"></p>
+                <p>Password <input type="password" name="password"></p>
+                <p><input type="submit" value="Login"></p>
+            </form>
+        </div>
+
+        <div class="container">
+            Don't have an account? <a href="/register{% if request.args.get('next', None) %}?next={{ request.args.get('next') }}{% endif %}">Register</a>
         </div>
 
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
     </body>
 </html>

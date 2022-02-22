@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit {{ tracker.t_name }} Tracker - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
+    </head>
+    <body>
+        {% include 'components/messages.html' %}
+
+        <div class="container">
+            <div>ID: {{ tracker.t_id }}</div>
+            <div>Name: {{ tracker.t_name }}</div>
+            <div>Description: {{ tracker.t_desc }}</div>
+            <div>Type: {{ tracker.t_type }}</div>
+            <div>Type Name: {{ tracker.t_type_name.tt_name }}</div>
+            <div>Unit: {{ tracker.t_unit }}</div>
+            <div>Unit Name: {{ tracker.t_unit.tu_name }}</div>
+            <div>Options: {{ tracker.t_options }}</div>
+        </div>
+
+        <div class="container">
+            <form action="" method="POST">
+                <p>
+                    <label for="t_name">Tracker Name:</label>
+                    <input type="text" id="t_name" name="t_name" maxlength="64" value="{{ tracker.t_name }}" required>
+                </p>
+                <p>
+                    <label for="t_desc">Tracker Description:</label>
+                    <textarea rows="5" id="t_desc" name="t_desc" maxlength="256" required>{{ tracker.t_desc }}</textarea>
+                </p>
+                <p>
+                    <div style="display: inline-block;">
+                        <label for="t_type">Tracker Type:</label>
+                        <select id="t_type" disabled>
+                            <option>{{ tracker.t_type_name.tt_name }}</option>
+                        </select>
+                    </div>
+                    <div id="t_unit_block" style="display: inline-block;">
+                        {% if tracker.t_type_name.tt_name == "Integer" or tracker.t_type_name.tt_name == "Decimal" %}
+                        <label for="t_unit">Unit:</label>
+                        <input type="text" id="t_unit" name="t_unit" maxlength="16" value="{{ tracker.t_unit.tu_name }}" required>
+                        {% endif %}
+                    </div>
+                </p>
+                <input type="hidden" id="to_total" name="to_total" value="{{ tracker.t_options | length }}">
+                <div id="t_options">{% for option in tracker.t_options %}<p>
+                        <label for="option[{{ loop.index0 }}]">Option {{ loop.index }}:</label>
+                        <input type="text" id="t_option[{{ loop.index0 }}]" name="t_option[{{ loop.index0 }}]" maxlength="64" value="{{ option.to_name }}" required>
+                    </p>{% endfor %}</div>
+                <p id="t_options_control"{% if tracker.t_options %} style="display: block;"{% else %} style="display: none;"{% endif %}>
+                    <button id="t_options_add" onclick="addOption(); return false;">Add Option</button>
+                    <button id="t_options_rem" onclick="remOption(); return false;"{% if tracker.t_options | length <= 1 %} disabled{% endif %}>Remove Option</button>
+                </p>
+                <p>
+                    <input type="reset" value="Reset" onclick="window.location.reload();">
+                    <input type="submit" value="Add Tracker">
+                </p>
+            </form>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/edit_tracker.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+    </body>
+</html>

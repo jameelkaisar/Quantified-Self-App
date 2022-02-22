@@ -4,57 +4,13 @@ function resetForm() {
     const t_options = document.getElementById("t_options");
     const t_unit_block = document.getElementById("t_unit_block");
 
-    to_total.value = 0;
-    while (t_unit_block.firstChild) {
-        t_unit_block.removeChild(t_unit_block.firstChild);
+    to_total.value = Math.min(to_original, to_total.value);
+    to_original = Math.min(to_original, to_total.value);
+    while (t_options.childElementCount > to_total.value) {
+        t_options.removeChild(t_options.lastChild);
     }
-    while (t_options.firstChild) {
-        t_options.removeChild(t_options.firstChild);
-    }
-    controller.style.display = "none";
 
     changeOptionsButton(to_total);
-}
-
-
-function setTypeOptions(select) {
-    const controller = document.getElementById("t_options_control");
-    const to_total = document.getElementById("to_total");
-    const t_options = document.getElementById("t_options");
-    const t_unit_block = document.getElementById("t_unit_block");
-    const selected = select.options[select.selectedIndex].text;
-
-    to_total.value = 0;
-    while (t_unit_block.firstChild) {
-        t_unit_block.removeChild(t_unit_block.firstChild);
-    }
-    while (t_options.firstChild) {
-        t_options.removeChild(t_options.firstChild);
-    }
-
-    if (selected == "Single Select" || selected == "Multi Select") {
-        controller.style.display = "block";
-        addOption();
-    }
-    else if (selected == "Integer" || selected == "Decimal") {
-        const label = document.createElement("label");
-        const unit = document.createElement("input");
-
-        label.setAttribute("for", "t_unit");
-        label.innerText = "Unit:";
-        unit.type = "text";
-        unit.id = "t_unit";
-        unit.name = "t_unit";
-        unit.maxLength = "16";
-        unit.required = true;
-        t_unit_block.appendChild(label);
-        t_unit_block.appendChild(unit);
-
-        controller.style.display = "none";
-    }
-    else {
-        controller.style.display = "none";
-    }
 }
 
 
@@ -101,3 +57,6 @@ function remOption() {
     changeOptionsButton(to_total);
     t_options.removeChild(t_options.lastChild);
 }
+
+
+var to_original = document.getElementById("to_total").value;

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ tracker.t_name }} Tracker - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
+    </head>
+    <body>
+        {% include 'components/messages.html' %}
+
+        <div class="container">
+            <div>ID: {{ tracker.t_id }}</div>
+            <div>Name: {{ tracker.t_name }}</div>
+            <div>Description: {{ tracker.t_desc }}</div>
+            <div>Type: {{ tracker.t_type }}</div>
+            <div>Type Name: {{ tracker.t_type_name.tt_name }}</div>
+            <div>Unit: {{ tracker.t_unit }}</div>
+            <div>Options: {{ tracker.t_options }}</div>
+        </div>
+
+        <div class="container">
+            <a href="/trackers/edit?id={{ tracker.t_id }}" class="btn btn-primary">Edit Tracker</a>
+            <a href="/trackers/delete?id={{ tracker.t_id }}" class="btn btn-danger">Delete Tracker</a>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+    </body>
+</html>

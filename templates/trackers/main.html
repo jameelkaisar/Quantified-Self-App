@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Trackers - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
+    </head>
+    <body>
+        {% include 'components/messages.html' %}
+
+        <div class="container">
+            <div class="row pt-4">
+                {% for tracker in trackers %}
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 d-flex">
+                    <div class="card bg-light shadow hover-overlay flex-fill mb-4">
+                        <a href="/trackers/view?id={{ tracker.t_id }}" class="card-link">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ tracker.t_name }}: Card title</h5>
+                                <p class="card-text">{{ tracker.t_desc }}: Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 d-flex">
+                    <div class="card bg-light shadow hover-overlay flex-fill mb-4">
+                        <a href="/trackers/add" class="card-link">
+                            <div class="card-body bg-light d-flex align-items-center justify-content-center">
+                                <i class="fa-solid fa-plus fa-8x text-secondary"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+    </body>
+</html>
