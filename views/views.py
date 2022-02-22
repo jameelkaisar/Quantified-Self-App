@@ -41,17 +41,34 @@ def trackers_view():
         flash("Invalid Tracker", "danger")
         return redirect("/trackers")
 
+    t_id = int(t_id)
+    tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
+
+    if not tracker:
+        flash("Invalid Tracker", "danger")
+        return redirect("/trackers")
+
     if request.method == "POST":
         # Action 1: Delete Tracker
         # Action 2: Add Tracker Log
-        pass
+        action = request.form.get("action", "")
+        if not (action.isdigit() and int(action) in [1, 2]):
+            flash("Invalid Request", "danger")
+            return redirect(request.full_path)
 
-    tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
-    if tracker:
-        return render_template("trackers/view.html", user=current_user, tracker=tracker)
-    else:
-        flash("Invalid Tracker", "danger")
-        return redirect("/trackers")
+        action = int(action)
+
+        if action == 1:
+            db.session.delete(tracker)
+            db.session.commit()
+            flash("Tracker Deleted", "success")
+            return redirect("/trackers")
+
+        elif action == 2:
+            flash("Log Action Not Available", "info")
+            return redirect(request.full_path)
+
+    return render_template("trackers/view.html", user=current_user, tracker=tracker)
 
 
 @app.route("/trackers/edit", methods=["GET", "POST"])
@@ -244,7 +261,7 @@ def trackers_add():
             db.session.commit()
             flash("Tracker Added", "success")
 
-        return redirect(request.full_path)
+        return redirect(f"/trackers/view?id={tracker.t_id}")
 
     tracker_types = TrackerTypes.query.all()
     return render_template("trackers/add.html", user=current_user, tracker_types=tracker_types)

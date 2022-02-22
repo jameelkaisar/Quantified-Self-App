@@ -14,17 +14,6 @@
         {% include 'components/messages.html' %}
 
         <div class="container">
-            <div>ID: {{ tracker.t_id }}</div>
-            <div>Name: {{ tracker.t_name }}</div>
-            <div>Description: {{ tracker.t_desc }}</div>
-            <div>Type: {{ tracker.t_type }}</div>
-            <div>Type Name: {{ tracker.t_type_name.tt_name }}</div>
-            <div>Unit: {{ tracker.t_unit }}</div>
-            <div>Unit Name: {{ tracker.t_unit.tu_name }}</div>
-            <div>Options: {{ tracker.t_options }}</div>
-        </div>
-
-        <div class="container">
             <form action="" method="POST">
                 <p>
                     <label for="t_name">Tracker Name:</label>

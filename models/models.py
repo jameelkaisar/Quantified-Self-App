@@ -34,8 +34,8 @@ class TrackerModel(db.Model):
     t_user = db.Column(db.Integer(), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     t_type_name = db.relationship("TrackerTypes", uselist=False)
-    t_unit = db.relationship("TrackerUnit", uselist=False)
-    t_options = db.relationship("TrackerOptions")
+    t_unit = db.relationship("TrackerUnit", cascade="all, delete", uselist=False)
+    t_options = db.relationship("TrackerOptions", cascade="all, delete")
 
 
 # Numerical, Multi Select

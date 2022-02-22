@@ -25,7 +25,10 @@
 
         <div class="container">
             <a href="/trackers/edit?id={{ tracker.t_id }}" class="btn btn-primary">Edit Tracker</a>
-            <a href="/trackers/delete?id={{ tracker.t_id }}" class="btn btn-danger">Delete Tracker</a>
+            <form action="" method="POST" style="display: inline;">
+                <input type="hidden" name="action" value="1">
+                <button type="submit" class="btn btn-danger">Delete Tracker</button>
+            </form>
         </div>
 
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
