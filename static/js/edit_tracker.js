@@ -1,19 +1,3 @@
-function resetForm() {
-    const controller = document.getElementById("t_options_control");
-    const to_total = document.getElementById("to_total");
-    const t_options = document.getElementById("t_options");
-    const t_unit_block = document.getElementById("t_unit_block");
-
-    to_total.value = Math.min(to_original, to_total.value);
-    to_original = Math.min(to_original, to_total.value);
-    while (t_options.childElementCount > to_total.value) {
-        t_options.removeChild(t_options.lastChild);
-    }
-
-    changeOptionsButton(to_total);
-}
-
-
 function changeOptionsButton(to_total) {
     const button = document.getElementById("t_options_rem");
 
@@ -57,6 +41,3 @@ function remOption() {
     changeOptionsButton(to_total);
     t_options.removeChild(t_options.lastChild);
 }
-
-
-var to_original = document.getElementById("to_total").value;

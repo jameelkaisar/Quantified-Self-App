@@ -62,15 +62,104 @@ def trackers_edit():
         flash("Invalid Tracker", "danger")
         return redirect("/trackers")
 
-    if request.method == "POST":
-        pass
-
+    t_id = int(t_id)
     tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
-    if tracker:
-        return render_template("trackers/edit.html", user=current_user, tracker=tracker)
-    else:
+
+    if not tracker:
         flash("Invalid Tracker", "danger")
         return redirect("/trackers")
+
+    if request.method == "POST":
+        t_name = request.form.get("t_name", "")
+        if not (0 < len(t_name) <= 64):
+            flash("Invalid Tracker Name", "danger")
+            return redirect(request.full_path)
+
+        t_desc = request.form.get("t_desc", "")
+        if not (0 < len(t_desc) <= 256):
+            flash("Invalid Tracker Description", "danger")
+            return redirect(request.full_path)
+
+        tt_name = tracker.t_type_name.tt_name
+
+        if tt_name in ["Boolean"]:
+            flash("Boolean", "success")
+
+            tracker.t_name = t_name
+            tracker.t_desc = t_desc
+            db.session.commit()
+            flash("Tracker Edited", "success")
+
+        elif tt_name in ["Integer", "Decimal"]:
+            flash("Integer/Decimal", "success")
+
+            t_unit = request.form.get("t_unit", "")
+            if not (0 < len(t_unit) <= 16):
+                flash("Invalid Tracker Unit", "danger")
+                return redirect(request.full_path)
+            flash("Unit", "success")
+
+            tracker.t_name = t_name
+            tracker.t_desc = t_desc
+            db.session.commit()
+            unit = TrackerUnit.query.filter(TrackerUnit.tu_tracker == t_id).one()
+            unit.tu_name = t_unit
+            db.session.commit()
+            flash("Tracker Edited", "success")
+
+        elif tt_name in ["Duration"]:
+            flash("Duration", "success")
+
+            tracker.t_name = t_name
+            tracker.t_desc = t_desc
+            db.session.commit()
+            flash("Tracker Edited", "success")
+
+        elif tt_name in ["Single Select", "Multi Select"]:
+            flash("Single Select/Multi Select", "success")
+
+            to_total = request.form.get("to_total", "")
+            if not (to_total.isdigit() and int(to_total) > 0):
+                flash("Invalid Tracker Options", "danger")
+                return redirect(request.full_path)
+
+            t_options = []
+            for i in range(int(to_total)):
+                t_option = request.form.get(f"t_option[{i}]", "")
+                if not (0 < len(t_option) <= 64):
+                    flash("Invalid Tracker Options", "danger")
+                    return redirect(request.full_path)
+                t_options.append(t_option)
+            flash("Options", "success")
+
+            tracker.t_name = t_name
+            tracker.t_desc = t_desc
+            db.session.commit()
+
+            to_count = 0
+
+            for i in range(min(len(tracker.t_options), int(to_total))):
+                option = tracker.t_options[i]
+                option.to_name = t_options[i]
+                to_count += 1
+
+            for i in range(to_count, len(tracker.t_options)):
+                # Handle Logs -> CASCADE?
+                option = tracker.t_options[i]
+                db.session.delete(option)
+                to_count += 1
+
+            for i in range(to_count, int(to_total)):
+                option = TrackerOptions(to_name=t_options[i], to_tracker=tracker.t_id)
+                db.session.add(option)
+                to_count += 1
+
+            db.session.commit()
+            flash("Tracker Edited", "success")
+
+        return redirect(f"/trackers/view?id={t_id}")
+
+    return render_template("trackers/edit.html", user=current_user, tracker=tracker)
 
 
 @app.route("/trackers/add", methods=["GET", "POST"])
