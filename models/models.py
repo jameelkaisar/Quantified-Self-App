@@ -36,6 +36,7 @@ class TrackerModel(db.Model):
     t_type_name = db.relationship("TrackerTypes", uselist=False)
     t_unit = db.relationship("TrackerUnit", cascade="all, delete", uselist=False)
     t_options = db.relationship("TrackerOptions", cascade="all, delete")
+    t_logs = db.relationship("TrackerLogs", cascade="all, delete")
 
 
 # Numerical, Multi Select
@@ -73,47 +74,13 @@ class TrackerLogs(db.Model):
     tl_note = db.Column(db.String(256))
     tl_tracker = db.Column(db.Integer(), db.ForeignKey("trackers.t_id", ondelete="CASCADE"), nullable=False)
 
-
-# Boolean Values
-class TrackerValueBool(db.Model):
-    __tablename__ = "tracker_val_bool"
-
-    tv_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    tv_val = db.Column(db.Boolean(), nullable=False)
-    tv_log = db.Column(db.Integer(), db.ForeignKey("tracker_logs.tl_id", ondelete="CASCADE"), nullable=False)
+    tl_vals = db.relationship("TrackerValues", cascade="all, delete")
 
 
-# Numerical Values (Duration/Integer/Float)
-class TrackerValueNum(db.Model):
-    __tablename__ = "tracker_val_num"
+# Tracker Log Values
+class TrackerValues(db.Model):
+    __tablename__ = "tracker_vals"
 
     tv_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     tv_val = db.Column(db.Numeric(10, 2), nullable=False)
     tv_log = db.Column(db.Integer(), db.ForeignKey("tracker_logs.tl_id", ondelete="CASCADE"), nullable=False)
-
-
-# Single Select Values
-class TrackerValueSin(db.Model):
-    __tablename__ = "tracker_val_sin"
-
-    tv_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    tv_val = db.Column(db.Integer(), db.ForeignKey("tracker_options.to_id"), nullable=False)
-    tv_log = db.Column(db.Integer(), db.ForeignKey("tracker_logs.tl_id", ondelete="CASCADE"), nullable=False)
-
-
-# Multi Select
-class TrackerValueMul(db.Model):
-    __tablename__ = "tracker_val_mul"
-
-    tv_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    tv_log = db.Column(db.Integer(), db.ForeignKey("tracker_logs.tl_id", ondelete="CASCADE"), nullable=False)
-
-
-# Multi Select Values
-class TrackerValueMulOpts(db.Model):
-    __tablename__ = "tracker_val_mul_opts"
-
-    tvo_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    tvo_val = db.Column(db.Integer(), db.ForeignKey("tracker_options.to_id"), nullable=False)
-    tvo_mul = db.Column(db.Integer(), db.ForeignKey("tracker_val_mul.tv_id", ondelete="CASCADE"), nullable=False)
-

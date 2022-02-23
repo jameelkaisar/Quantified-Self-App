@@ -40,7 +40,7 @@
                 </p>
                 <p>
                     <label for="tl_note">Note:</label>
-                    <textarea rows="5" id="tl_note" name="t_desc" maxlength="256"></textarea>
+                    <textarea rows="5" id="tl_note" name="tl_note" maxlength="256"></textarea>
                 </p>
                 {% if tracker.t_type_name.tt_name == "Boolean" %}
                 <label for="tl_val">Value:</label>
@@ -66,13 +66,13 @@
                 <select id="tl_val" name="tl_val" required>
                     <option value="" selected hidden disabled>Choose Option</option>
                     {% for option in tracker.t_options %}
-                    <option value="{{ loop.index0 }}">{{ option.to_name }}</option>
+                    <option value="{{ option.to_id }}">{{ option.to_name }}</option>
                     {% endfor %}
                 </select>
                 {% elif tracker.t_type_name.tt_name == "Multi Select" %}
                 {% for option in tracker.t_options %}
-                <input type="checkbox" name="t_val[{{ loop.index0 }}]">
-                <label for="t_val[{{ loop.index0 }}]">{{ option.to_name }}</label><br>
+                <input type="checkbox" id="tl_val[{{ option.to_id }}]" name="tl_val[{{ option.to_id }}]" value="1">
+                <label for="tl_val[{{ option.to_id }}]">{{ option.to_name }}</label><br>
                 {% endfor %}
                 {% endif %}
                 <button type="submit" class="btn btn-primary">Add Log</button>

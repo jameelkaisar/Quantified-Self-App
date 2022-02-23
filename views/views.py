@@ -6,6 +6,7 @@ sys.path.append("../database")
 
 from models.models import UserModel
 from models.models import TrackerModel, TrackerTypes, TrackerUnit, TrackerOptions
+from models.models import TrackerLogs, TrackerValues
 from database.database import db
 
 from flask import Flask
@@ -18,6 +19,7 @@ from flask_login import login_required
 from flask_login import current_user
 from flask_login import login_user
 from flask_login import logout_user
+from datetime import datetime
 
 
 @app.route("/", methods=["GET"])
@@ -40,8 +42,8 @@ def trackers_view():
     if not (t_id.isdigit()):
         flash("Invalid Tracker", "danger")
         return redirect("/trackers")
-
     t_id = int(t_id)
+
     tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
 
     if not tracker:
@@ -49,13 +51,10 @@ def trackers_view():
         return redirect("/trackers")
 
     if request.method == "POST":
-        # Action 1: Delete Tracker
-        # Action 2: Add Tracker Log
         action = request.form.get("action", "")
         if not (action.isdigit() and int(action) in [1, 2]):
             flash("Invalid Request", "danger")
             return redirect(request.full_path)
-
         action = int(action)
 
         if action == 1:
@@ -65,7 +64,118 @@ def trackers_view():
             return redirect("/trackers")
 
         elif action == 2:
-            flash("Log Action Not Available", "info")
+            flash("Log Creation Under Construction", "info")
+
+            tl_time = request.form.get("tl_time", "")
+            try:
+                tl_time = datetime.strptime(tl_time, "%Y-%m-%dT%H:%M")
+            except ValueError:
+                flash("Invalid Log Time", "danger")
+                return redirect(request.full_path)
+
+            tl_note = request.form.get("tl_note", "")
+            if not (0 <= len(tl_note) <= 256):
+                flash("Invalid Log Note", "danger")
+                return redirect(request.full_path)
+
+            tt_name = tracker.t_type_name.tt_name
+
+            if tt_name in ["Boolean"]:
+                flash("Boolean", "success")
+
+                tl_val = request.form.get("tl_val", "")
+                if tl_val == "1":
+                    tl_val = 1
+                elif tl_val == "0":
+                    tl_val = 0
+                else:
+                    flash("Invalid Value", "danger")
+                    return redirect(request.full_path)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Integer"]:
+                flash("Integer", "success")
+
+                tl_val = request.form.get("tl_val", "")
+                try:
+                    tl_val = int(float(tl_val))
+                except ValueError:
+                    flash("Invalid Value", "danger")
+                    return redirect(request.full_path)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Decimal"]:
+                flash("Decimal", "success")
+
+                tl_val = request.form.get("tl_val", "")
+                try:
+                    tl_val = round(float(tl_val), 2)
+                except ValueError:
+                    flash("Invalid Value", "danger")
+                    return redirect(request.full_path)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Duration"]:
+                flash("Duration", "success")
+
+                tl_val_h = request.form.get("tl_val_h", "")
+                if not (tl_val_h.isdigit() and 0 <= int(tl_val_h) <= 100):
+                    flash("Invalid Value", "danger")
+                    return redirect(request.full_path)
+                tl_val_h = int(tl_val_h)
+
+                tl_val_m = request.form.get("tl_val_m", "")
+                if not (tl_val_m.isdigit() and 0 <= int(tl_val_m) < 60):
+                    flash("Invalid Value", "danger")
+                    return redirect(request.full_path)
+                tl_val_m = int(tl_val_m)
+
+                tl_val_s = request.form.get("tl_val_s", "")
+                if not (tl_val_s.isdigit() and 0 <= int(tl_val_s) < 60):
+                    flash("Invalid Value", "danger")
+                    return redirect(request.full_path)
+                tl_val_s = int(tl_val_s)
+
+                tl_val = (tl_val_h * 60 * 60) + (tl_val_m * 60) + (tl_val_s)
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Single Select"]:
+                flash("Single Select", "success")
+
+                tl_val = request.form.get("tl_val", "")
+                to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+                if not (tl_val.isdigit() and int(tl_val) in to_ids):
+                    flash("Invalid Value", "danger")
+                    return redirect(request.full_path)
+                tl_val = int(tl_val)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Multi Select"]:
+                flash("Multi Select", "success")
+
+                tl_vals = []
+                to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+                for i in to_ids:
+                    tl_val = request.form.get(f"tl_val[{i}]", "")
+                    if tl_val in ["1", "on"]:
+                        tl_vals.append(i)
+                if len(tl_vals) == 0:
+                    flash("You must select at least one value", "info")
+                    return redirect(request.full_path)
+
+            log = TrackerLogs(tl_time=tl_time, tl_note=tl_note, tl_tracker=tracker.t_id)
+            db.session.add(log)
+            db.session.commit()
+            for tl_val in tl_vals:
+                val = TrackerValues(tv_val=tl_val, tv_log=log.tl_id)
+                db.session.add(val)
+            db.session.commit()
+            flash("Log Added", "success")
+
             return redirect(request.full_path)
 
     return render_template("trackers/view.html", user=current_user, tracker=tracker)
@@ -78,8 +188,8 @@ def trackers_edit():
     if not (t_id.isdigit()):
         flash("Invalid Tracker", "danger")
         return redirect("/trackers")
-
     t_id = int(t_id)
+
     tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
 
     if not tracker:
@@ -139,9 +249,10 @@ def trackers_edit():
             if not (to_total.isdigit() and int(to_total) > 0):
                 flash("Invalid Tracker Options", "danger")
                 return redirect(request.full_path)
+            to_total = int(to_total)
 
             t_options = []
-            for i in range(int(to_total)):
+            for i in range(to_total):
                 t_option = request.form.get(f"t_option[{i}]", "")
                 if not (0 < len(t_option) <= 64):
                     flash("Invalid Tracker Options", "danger")
@@ -155,7 +266,7 @@ def trackers_edit():
 
             to_count = 0
 
-            for i in range(min(len(tracker.t_options), int(to_total))):
+            for i in range(min(len(tracker.t_options), to_total)):
                 option = tracker.t_options[i]
                 option.to_name = t_options[i]
                 to_count += 1
@@ -166,7 +277,7 @@ def trackers_edit():
                 db.session.delete(option)
                 to_count += 1
 
-            for i in range(to_count, int(to_total)):
+            for i in range(to_count, to_total):
                 option = TrackerOptions(to_name=t_options[i], to_tracker=tracker.t_id)
                 db.session.add(option)
                 to_count += 1
@@ -198,8 +309,9 @@ def trackers_add():
         if not (t_type.isdigit() and int(t_type) in map(lambda x: x.tt_id, tracker_types)):
             flash("Invalid Tracker Type", "danger")
             return redirect(request.full_path)
+        t_type = int(t_type)
 
-        tt_id = int(t_type)
+        tt_id = t_type
         tt_name = list(filter(lambda x: x.tt_id == tt_id, tracker_types))[0].tt_name
 
         if tt_name in ["Boolean"]:
@@ -242,9 +354,10 @@ def trackers_add():
             if not (to_total.isdigit() and int(to_total) > 0):
                 flash("Invalid Tracker Options", "danger")
                 return redirect(request.full_path)
+            to_total = int(to_total)
 
             t_options = []
-            for i in range(int(to_total)):
+            for i in range(to_total):
                 t_option = request.form.get(f"t_option[{i}]", "")
                 if not (0 < len(t_option) <= 64):
                     flash("Invalid Tracker Options", "danger")
@@ -255,7 +368,7 @@ def trackers_add():
             tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=current_user.id)
             db.session.add(tracker)
             db.session.commit()
-            for i in range(int(to_total)):
+            for i in range(to_total):
                 option = TrackerOptions(to_name=t_options[i], to_tracker=tracker.t_id)
                 db.session.add(option)
             db.session.commit()
