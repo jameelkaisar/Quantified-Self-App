@@ -178,7 +178,9 @@ def trackers_view():
 
             return redirect(request.full_path)
 
-    return render_template("trackers/view.html", user=current_user, tracker=tracker)
+    options = {x.to_id: x.to_name for x in tracker.t_options}
+
+    return render_template("trackers/view.html", user=current_user, tracker=tracker, options=options)
 
 
 @app.route("/trackers/edit", methods=["GET", "POST"])

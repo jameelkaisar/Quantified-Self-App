@@ -21,6 +21,7 @@
             <div>Type Name: {{ tracker.t_type_name.tt_name }}</div>
             <div>Unit: {{ tracker.t_unit }}</div>
             <div>Options: {{ tracker.t_options }}</div>
+            <div>Logs: {{ tracker.t_logs }}</div>
         </div>
 
         <div class="container">
@@ -77,6 +78,38 @@
                 {% endif %}
                 <button type="submit" class="btn btn-primary">Add Log</button>
             </form>
+        </div>
+
+        <div class="container">
+            {% for log in tracker.t_logs %}
+            <div>
+                <div>
+                    ID: {{ log.tl_id }} | Time: {{ log.tl_time }} | Note: {{ log.tl_note }} | Tracker: {{ log.tl_tracker }}
+                    {% for val in log.tl_vals %}
+                    <br>
+                    ID: {{ val.tv_id }} | Value: {{ val.tv_val }} | Log: {{ val.tv_log }}
+                    <br>
+                    {% if tracker.t_type_name.tt_name == "Boolean" %}
+                        {% if val.tv_val | int == 1 %}
+                        Yes
+                        {% elif val.tv_val | int == 0 %}
+                        No
+                        {% endif %}
+                    {% elif tracker.t_type_name.tt_name == "Integer" %}
+                        {{ val.tv_val | int }}
+                    {% elif tracker.t_type_name.tt_name == "Decimal" %}
+                        {{ val.tv_val | round(2) }}
+                    {% elif tracker.t_type_name.tt_name == "Duration" %}
+                        Hours: {{ val.tv_val // 3600 }} | Minutes: {{ (val.tv_val % 3600) // 60 }} | Seconds: {{ (val.tv_val % 60) | int }}
+                    {% elif tracker.t_type_name.tt_name == "Single Select" %}
+                        {{ options[val.tv_val | int] }}
+                    {% elif tracker.t_type_name.tt_name == "Multi Select" %}
+                        {{ options[val.tv_val | int] }}
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
         </div>
 
         <script src="{{ url_for('static', filename='js/add_log.js')}}"></script>
