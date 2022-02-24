@@ -230,7 +230,6 @@ def trackers_edit():
 
             tracker.t_name = t_name
             tracker.t_desc = t_desc
-            db.session.commit()
             unit = TrackerUnit.query.filter(TrackerUnit.tu_tracker == t_id).one()
             unit.tu_name = t_unit
             db.session.commit()
@@ -247,8 +246,23 @@ def trackers_edit():
         elif tt_name in ["Single Select", "Multi Select"]:
             flash("Single Select/Multi Select", "success")
 
+            to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+            to_ids_del = []
+            to_ids_edit = {}
+            for i in to_ids:
+                t_option = request.form.get(f"t_option_exist[{i}]", "")
+                if t_option == "":
+                    to_ids_del.append(i)
+                    continue
+                if not (len(t_option) <= 64):
+                    flash("Invalid Tracker Options", "danger")
+                    return redirect(request.full_path)
+                else:
+                    to_ids_edit[i] = t_option
+            flash("Existing Options", "success")
+
             to_total = request.form.get("to_total", "")
-            if not (to_total.isdigit() and int(to_total) > 0):
+            if not (to_total.isdigit() and int(to_total) >= 0):
                 flash("Invalid Tracker Options", "danger")
                 return redirect(request.full_path)
             to_total = int(to_total)
@@ -260,32 +274,42 @@ def trackers_edit():
                     flash("Invalid Tracker Options", "danger")
                     return redirect(request.full_path)
                 t_options.append(t_option)
-            flash("Options", "success")
+            flash("New Options", "success")
+
+            if not (len(to_ids) - len(to_ids_del) + len(t_options) > 0):
+                flash("Tracker must havet at least one option", "info")
+                return redirect(request.full_path)
 
             tracker.t_name = t_name
             tracker.t_desc = t_desc
-            db.session.commit()
 
-            to_count = 0
+            for i, j in to_ids_edit.items():
+                option = TrackerOptions.query.filter(TrackerOptions.to_id == i).one()
+                option.to_name = j
 
-            for i in range(min(len(tracker.t_options), to_total)):
-                option = tracker.t_options[i]
-                option.to_name = t_options[i]
-                to_count += 1
-
-            for i in range(to_count, len(tracker.t_options)):
-                # Handle Logs -> CASCADE?
-                option = tracker.t_options[i]
-                db.session.delete(option)
-                to_count += 1
-
-            for i in range(to_count, to_total):
-                option = TrackerOptions(to_name=t_options[i], to_tracker=tracker.t_id)
+            for i in range(len(t_options)):
+                option = TrackerOptions(to_name=t_options[i], to_tracker=t_id)
                 db.session.add(option)
-                to_count += 1
 
             db.session.commit()
+
+            if tt_name == "Single Select":
+                flash("[Delete Single Select Option] This feature will be added soon!", "info")
+                # Delete all logs of type "Single Select" having int(log.t_vals[0]) in to_ids_del
+                # Delete all options with ids in to_ids_del
+                # for i in to_ids_del:
+                #     # Handle Logs -> CASCADE?
+                #     option = TrackerOptions.query.filter(TrackerOptions.to_id == i).one()
+                #     db.session.delete(option)
+                # db.session.commit()
+            elif tt_name == "Multi Select":
+                # Delete all logs of type "Multi Select" having all int(log.t_vals) in to_ids_del
+                # Delete all values with int(value) in to_ids_del
+                # Delete all options with ids in to_ids_del
+                flash("[Delete Multi Select Option] This feature will be added soon!", "info")
+
             flash("Tracker Edited", "success")
+            return redirect(request.full_path) # Temp
 
         return redirect(f"/trackers/view?id={t_id}")
 

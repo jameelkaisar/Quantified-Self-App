@@ -77,7 +77,7 @@ function addOption() {
     const label = document.createElement("label");
     const option = document.createElement("input");
 
-    label.setAttribute("for", "option[" + parseInt(to_total.value) + "]");
+    label.setAttribute("for", "t_option[" + parseInt(to_total.value) + "]");
     label.innerText = "Option " + (parseInt(to_total.value)+1) + ":";
     option.type = "text";
     option.id = "t_option[" + parseInt(to_total.value) + "]";

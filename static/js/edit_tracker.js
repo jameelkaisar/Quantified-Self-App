@@ -1,7 +1,7 @@
 function changeOptionsButton(to_total) {
     const button = document.getElementById("t_options_rem");
 
-    if (to_total.value > 1) {
+    if (to_total.value > 0) {
         button.disabled = false;
     }
     else {
@@ -17,7 +17,7 @@ function addOption() {
     const label = document.createElement("label");
     const option = document.createElement("input");
 
-    label.setAttribute("for", "option[" + parseInt(to_total.value) + "]");
+    label.setAttribute("for", "t_option[" + parseInt(to_total.value) + "]");
     label.innerText = "Option " + (parseInt(to_total.value)+1) + ":";
     option.type = "text";
     option.id = "t_option[" + parseInt(to_total.value) + "]";
@@ -40,4 +40,14 @@ function remOption() {
     to_total.value = parseInt(to_total.value) - 1;
     changeOptionsButton(to_total);
     t_options.removeChild(t_options.lastChild);
+}
+
+
+function remOptionExist(object) {
+    const parent = object.parentElement;
+    const grandparent = parent.parentElement;
+    parent.remove();
+    if (grandparent.children.length == 0) {
+        grandparent.innerHTML = "All Existing Nodes Deleted";
+    }
 }

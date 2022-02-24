@@ -37,14 +37,25 @@
                         {% endif %}
                     </div>
                 </p>
-                <input type="hidden" id="to_total" name="to_total" value="{{ tracker.t_options | length }}">
-                <div id="t_options">{% for option in tracker.t_options %}<p>
-                        <label for="option[{{ loop.index0 }}]">Option {{ loop.index }}:</label>
-                        <input type="text" id="t_option[{{ loop.index0 }}]" name="t_option[{{ loop.index0 }}]" maxlength="64" value="{{ option.to_name }}" required>
-                    </p>{% endfor %}</div>
+                <div id="t_options_exist">
+                    {% if tracker.t_options | length > 0 %}
+                    Existing Options:
+                    <br>
+                    Tooltip: Warning: Deletion of existing options will result in change or even deletion of current logs
+                    {% endif %}
+                    {% for option in tracker.t_options %}
+                    <div>
+                        <label for="t_option_exist[{{ option.to_id }}]">Option {{ loop.index }}:</label>
+                        <input type="text" id="t_option_exist[{{ option.to_id }}]" name="t_option_exist[{{ option.to_id }}]" maxlength="64" value="{{ option.to_name }}" required>
+                        <button onclick="/*alert('This feature will be added soon!'); return false;*/ remOptionExist(this); return false;">Delete Option</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="to_total" name="to_total" value="0">
+                <div id="t_options"></div>
                 <p id="t_options_control"{% if tracker.t_options %} style="display: block;"{% else %} style="display: none;"{% endif %}>
                     <button id="t_options_add" onclick="addOption(); return false;">Add Option</button>
-                    <button id="t_options_rem" onclick="remOption(); return false;"{% if tracker.t_options | length <= 1 %} disabled{% endif %}>Remove Option</button>
+                    <button id="t_options_rem" onclick="remOption(); return false;" disabled>Remove Option</button>
                 </p>
                 <p>
                     <input type="reset" value="Reset" onclick="window.location.reload();">
