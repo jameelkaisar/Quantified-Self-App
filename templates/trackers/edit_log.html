@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit {{ tracker.t_name }} Tracker Log - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
+    </head>
+    <body>
+        {% include 'components/messages.html' %}
+
+        <div class="container">
+            <form action="" method="POST">
+                <p>
+                    <label for="tl_time">Time:</label>
+                    <input type="datetime-local" id="tl_time" name="tl_time" value="{{ log.tl_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                </p>
+                <p>
+                    <label for="tl_note">Note:</label>
+                    <textarea rows="5" id="tl_note" name="tl_note" maxlength="256">{{ log.tl_note }}</textarea>
+                </p>
+                {% if tracker.t_type_name.tt_name == "Boolean" %}
+                <label for="tl_val">Value:</label>
+                <select id="tl_val" name="tl_val" required>
+                    <option value="1" {% if log.tl_vals[0].tv_val | int == 1 %}selected{% endif %}>Yes</option>
+                    <option value="0" {% if log.tl_vals[0].tv_val | int == 0 %}selected{% endif %}>No</option>
+                </select>
+                {% elif tracker.t_type_name.tt_name == "Integer" %}
+                <label for="tl_val">Value:</label>
+                <input type="number" step="1" id="tl_val" name="tl_val" value="{{ log.tl_vals[0].tv_val | int }}" required>{{ tracker.t_unit.tu_name }}
+                {% elif tracker.t_type_name.tt_name == "Decimal" %}
+                <label for="tl_val">Value:</label>
+                <input type="number" step="0.01" id="tl_val" name="tl_val" value="{{ log.tl_vals[0].tv_val | round(2) }}" required>{{ tracker.t_unit.tu_name }}
+                {% elif tracker.t_type_name.tt_name == "Duration" %}
+                <label for="tl_val_h">Hours:</label>
+                <input type="number" step="1" min="0" max="100" id="tl_val_h" name="tl_val_h" value="{{ log.tl_vals[0].tv_val // 3600 }}" required>
+                <label for="tl_val_m">Minutes:</label>
+                <input type="number" step="1" min="0" max="59" id="tl_val_m" name="tl_val_m" value="{{ (log.tl_vals[0].tv_val % 3600) // 60 }}" required>
+                <label for="tl_val_s">Seconds:</label>
+                <input type="number" step="1" min="0" max="59" id="tl_val_s" name="tl_val_s" value="{{ (log.tl_vals[0].tv_val % 60) | int }}" required>
+                {% elif tracker.t_type_name.tt_name == "Single Select" %}
+                <label for="tl_val">Value:</label>
+                <select id="tl_val" name="tl_val" required>
+                    {% for option in tracker.t_options %}
+                    <option value="{{ option.to_id }}" {% if log.tl_vals[0].tv_val | int == option.to_id %}selected{% endif %}>{{ option.to_name }}</option>
+                    {% endfor %}
+                </select>
+                {% elif tracker.t_type_name.tt_name == "Multi Select" %}
+                {% for option in tracker.t_options %}
+                <input type="checkbox" id="tl_val[{{ option.to_id }}]" name="tl_val[{{ option.to_id }}]" value="1" {% if option.to_id in tv_vals %}checked{% endif %}>
+                <label for="tl_val[{{ option.to_id }}]">{{ option.to_name }}</label><br>
+                {% endfor %}
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Edit Log</button>
+            </form>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+    </body>
+</html>

@@ -200,6 +200,48 @@ def trackers_view():
     return render_template("trackers/view.html", user=current_user, tracker=tracker, options=options)
 
 
+@app.route("/trackers/log/edit", methods=["GET", "POST"])
+@login_required
+def trackers_log_edit():
+    t_id = request.args.get("tid", "")
+    if not (t_id.isdigit()):
+        flash("Invalid Log", "danger")
+        return redirect("/trackers")
+    t_id = int(t_id)
+
+    tl_id = request.args.get("lid", "")
+    if not (tl_id.isdigit()):
+        flash("Invalid Log", "danger")
+        return redirect("/trackers")
+    tl_id = int(tl_id)
+
+    tracker = TrackerModel.query.filter(TrackerModel.t_id == t_id, TrackerModel.t_user == current_user.id).first()
+
+    if not tracker:
+        flash("Invalid Log", "danger")
+        return redirect("/trackers")
+
+    log = TrackerLogs.query.filter(TrackerLogs.tl_id == tl_id, TrackerLogs.tl_tracker == t_id).first()
+
+    if not log:
+        flash("Invalid Log", "danger")
+        return redirect("/trackers")
+
+    tt_name = tracker.t_type_name.tt_name
+
+    if request.method == "POST":
+        flash("POST Request", "info")
+
+        return redirect(f"/trackers/view?id={t_id}")
+
+    if tt_name == "Multi Select":
+        tv_vals = list(map(lambda x: int(x.tv_val), log.tl_vals))
+    else:
+        tv_vals = []
+
+    return render_template("trackers/edit_log.html", user=current_user, tracker=tracker, log=log, tv_vals=tv_vals)
+
+
 @app.route("/trackers/edit", methods=["GET", "POST"])
 @login_required
 def trackers_edit():
