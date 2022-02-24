@@ -52,7 +52,7 @@ def trackers_view():
 
     if request.method == "POST":
         action = request.form.get("action", "")
-        if not (action.isdigit() and int(action) in [1, 2]):
+        if not (action.isdigit() and int(action) in [1, 2, 3]):
             flash("Invalid Request", "danger")
             return redirect(request.full_path)
         action = int(action)
@@ -64,8 +64,6 @@ def trackers_view():
             return redirect("/trackers")
 
         elif action == 2:
-            flash("Log Creation Under Construction", "info")
-
             tl_time = request.form.get("tl_time", "")
             try:
                 tl_time = datetime.strptime(tl_time, "%Y-%m-%dT%H:%M")
@@ -175,6 +173,25 @@ def trackers_view():
                 db.session.add(val)
             db.session.commit()
             flash("Log Added", "success")
+
+            return redirect(request.full_path)
+
+        elif action == 3:
+            tl_id = request.form.get("tl_id", "")
+            if not (tl_id.isdigit()):
+                flash("Invalid Log", "danger")
+                return redirect(request.full_path)
+            tl_id = int(tl_id)
+
+            log = TrackerLogs.query.filter(TrackerLogs.tl_id == tl_id, TrackerLogs.tl_tracker == t_id).first()
+
+            if not log:
+                flash("Invalid Log", "danger")
+                return redirect(request.full_path)
+
+            db.session.delete(log)
+            db.session.commit()
+            flash(f"Log Deleted", "info")
 
             return redirect(request.full_path)
 

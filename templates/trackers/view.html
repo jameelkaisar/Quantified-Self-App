@@ -108,6 +108,14 @@
                     {% endif %}
                     {% endfor %}
                 </div>
+                <div class="container">
+                    <a href="/trackers/log/edit?id={{ log.tl_id }}" class="btn btn-primary">Edit Log</a>
+                    <form action="" method="POST" style="display: inline;">
+                        <input type="hidden" name="action" value="3">
+                        <input type="hidden" name="tl_id" value="{{ log.tl_id }}">
+                        <button type="submit" class="btn btn-danger">Delete Log</button>
+                    </form>
+                </div>
             </div>
             {% endfor %}
         </div>
