@@ -51,7 +51,7 @@
                 </select>
                 {% elif tracker.t_type_name.tt_name == "Multi Select" %}
                 {% for option in tracker.t_options %}
-                <input type="checkbox" id="tl_val[{{ option.to_id }}]" name="tl_val[{{ option.to_id }}]" value="1" {% if option.to_id in tv_vals %}checked{% endif %}>
+                <input type="checkbox" id="tl_val[{{ option.to_id }}]" name="tl_val[{{ option.to_id }}]" value="1" {% if option.to_id in tl_vals %}checked{% endif %}>
                 <label for="tl_val[{{ option.to_id }}]">{{ option.to_name }}</label><br>
                 {% endfor %}
                 {% endif %}

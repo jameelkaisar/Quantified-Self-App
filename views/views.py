@@ -227,19 +227,155 @@ def trackers_log_edit():
         flash("Invalid Log", "danger")
         return redirect("/trackers")
 
-    tt_name = tracker.t_type_name.tt_name
-
     if request.method == "POST":
         flash("POST Request", "info")
 
+        tl_time = request.form.get("tl_time", "")
+        try:
+            tl_time = datetime.strptime(tl_time, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            flash("Invalid Log Time", "danger")
+            return redirect(request.full_path)
+
+        tl_note = request.form.get("tl_note", "")
+        if not (0 <= len(tl_note) <= 256):
+            flash("Invalid Log Note", "danger")
+            return redirect(request.full_path)
+
+        tt_name = tracker.t_type_name.tt_name
+
+        if tt_name in ["Boolean"]:
+            flash("Boolean", "success")
+
+            tl_val = request.form.get("tl_val", "")
+            if tl_val == "1":
+                tl_val = 1
+            elif tl_val == "0":
+                tl_val = 0
+            else:
+                flash("Invalid Value", "danger")
+                return redirect(request.full_path)
+
+            log.tl_time = tl_time
+            log.tl_note = tl_note
+            log.tl_vals[0].tv_val = tl_val
+            db.session.commit()
+
+        elif tt_name in ["Integer"]:
+            flash("Integer", "success")
+
+            tl_val = request.form.get("tl_val", "")
+            try:
+                tl_val = int(float(tl_val))
+            except ValueError:
+                flash("Invalid Value", "danger")
+                return redirect(request.full_path)
+
+            log.tl_time = tl_time
+            log.tl_note = tl_note
+            log.tl_vals[0].tv_val = tl_val
+            db.session.commit()
+
+        elif tt_name in ["Decimal"]:
+            flash("Decimal", "success")
+
+            tl_val = request.form.get("tl_val", "")
+            try:
+                tl_val = round(float(tl_val), 2)
+            except ValueError:
+                flash("Invalid Value", "danger")
+                return redirect(request.full_path)
+
+            log.tl_time = tl_time
+            log.tl_note = tl_note
+            log.tl_vals[0].tv_val = tl_val
+            db.session.commit()
+
+        elif tt_name in ["Duration"]:
+            flash("Duration", "success")
+
+            tl_val_h = request.form.get("tl_val_h", "")
+            if not (tl_val_h.isdigit() and 0 <= int(tl_val_h) <= 100):
+                flash("Invalid Value", "danger")
+                return redirect(request.full_path)
+            tl_val_h = int(tl_val_h)
+
+            tl_val_m = request.form.get("tl_val_m", "")
+            if not (tl_val_m.isdigit() and 0 <= int(tl_val_m) < 60):
+                flash("Invalid Value", "danger")
+                return redirect(request.full_path)
+            tl_val_m = int(tl_val_m)
+
+            tl_val_s = request.form.get("tl_val_s", "")
+            if not (tl_val_s.isdigit() and 0 <= int(tl_val_s) < 60):
+                flash("Invalid Value", "danger")
+                return redirect(request.full_path)
+            tl_val_s = int(tl_val_s)
+
+            tl_val = (tl_val_h * 60 * 60) + (tl_val_m * 60) + (tl_val_s)
+            
+            log.tl_time = tl_time
+            log.tl_note = tl_note
+            log.tl_vals[0].tv_val = tl_val
+            db.session.commit()
+
+        elif tt_name in ["Single Select"]:
+            flash("Single Select", "success")
+
+            tl_val = request.form.get("tl_val", "")
+            to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+            if not (tl_val.isdigit() and int(tl_val) in to_ids):
+                flash("Invalid Value", "danger")
+                return redirect(request.full_path)
+            tl_val = int(tl_val)
+
+            log.tl_time = tl_time
+            log.tl_note = tl_note
+            log.tl_vals[0].tv_val = tl_val
+            db.session.commit()
+
+        elif tt_name in ["Multi Select"]:
+            flash("Multi Select", "success")
+
+            tl_vals = []
+            to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+            for i in to_ids:
+                tl_val = request.form.get(f"tl_val[{i}]", "")
+                if tl_val in ["1", "on"]:
+                    tl_vals.append(i)
+            if len(tl_vals) == 0:
+                flash("You must select at least one value", "info")
+                return redirect(request.full_path)
+
+            tl_vals_exist = list(map(lambda x: int(x.tv_val), log.tl_vals))
+            tl_vals_del = list(filter(lambda x: x not in tl_vals, tl_vals_exist))
+            tl_vals_add = list(filter(lambda x: x not in tl_vals_exist, tl_vals))
+
+            log.tl_time = tl_time
+            log.tl_note = tl_note
+
+            for value in log.tl_vals:
+                if value.tv_val in tl_vals_del:
+                    db.session.delete(value)
+
+            for tl_val in tl_vals_add:
+                val = TrackerValues(tv_val=tl_val, tv_log=log.tl_id)
+                db.session.add(val)
+
+            db.session.commit()
+
+        flash("Log Edited", "success")
+
         return redirect(f"/trackers/view?id={t_id}")
 
-    if tt_name == "Multi Select":
-        tv_vals = list(map(lambda x: int(x.tv_val), log.tl_vals))
-    else:
-        tv_vals = []
+    tt_name = tracker.t_type_name.tt_name
 
-    return render_template("trackers/edit_log.html", user=current_user, tracker=tracker, log=log, tv_vals=tv_vals)
+    if tt_name == "Multi Select":
+        tl_vals = list(map(lambda x: int(x.tv_val), log.tl_vals))
+    else:
+        tl_vals = []
+
+    return render_template("trackers/edit_log.html", user=current_user, tracker=tracker, log=log, tl_vals=tl_vals)
 
 
 @app.route("/trackers/edit", methods=["GET", "POST"])
