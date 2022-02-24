@@ -1,5 +1,10 @@
 from flask import Flask
 
+import os
+key = os.urandom(16).hex()
+with open(".env", "w") as file:
+    file.write(f"SECRET_KEY={key}\n")
+
 from config.config import DevConfig
 from database.database import db
 from models.models import TrackerTypes
