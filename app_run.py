@@ -16,6 +16,7 @@ app.app_context().push()
 
 
 from views.views import *
+from templates.filters.filters import *
 
 
 if __name__ == "__main__":
