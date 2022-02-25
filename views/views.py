@@ -30,7 +30,6 @@ def home():
 @app.route("/trackers", methods=["GET"])
 @login_required
 def trackers():
-    # trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
     trackers = db.session.query(TrackerModel.t_id, TrackerModel.t_name, TrackerModel.t_desc).filter(TrackerModel.t_user == current_user.id).all()
     return render_template("trackers/main.html", user=current_user, trackers=trackers)
 
@@ -603,7 +602,9 @@ def trackers_add():
 
 @app.route("/logout")
 def logout():
-    logout_user()
+    if current_user.is_authenticated:
+        logout_user()
+        flash("Logged out successfully", "info")
     return redirect(request.args.get("next", "/"))
 
 
@@ -613,17 +614,27 @@ def register():
         return redirect(request.args.get("next", "/"))
 
     if request.method == "POST":
-        username = request.form.get("username", None)
+        username = request.form.get("username", "")
         password = request.form.get("password", "")
 
+        if not (4 <= len(username) <= 64):
+            flash("Invalid Username", "info")
+            return redirect(request.full_path)
+
+        if not (4 <= len(password) <= 64):
+            flash("Invalid Password", "info")
+            return redirect(request.full_path)
+
         if UserModel.query.filter_by(username=username).first():
-            return "Username Not Available"
+            flash("Username Not Available", "info")
+            return redirect(request.full_path)
 
         user = UserModel(username=username)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
         login_user(user)
+        flash("Registered successfully", "info")
         return redirect(request.args.get("next", "/"))
 
     return render_template("auth/register.html", request=request)
@@ -635,13 +646,15 @@ def login():
         return redirect(request.args.get("next", "/"))
 
     if request.method == "POST":
-        username = request.form.get("username", None)
+        username = request.form.get("username", "")
         password = request.form.get("password", "")
         user = UserModel.query.filter_by(username=username).first()
-        if user is not None and user.check_password(password):
+        if 4 <= len(username) <= 64 and user is not None and user.check_password(password):
             login_user(user)
+            flash("Logged in successfully", "info")
             return redirect(request.args.get("next", "/"))
         else:
-            return "Invalid Credentials"
+            flash("Invalid Credentials", "info")
+            return redirect(request.full_path)
 
     return render_template("auth/login.html", request=request)
