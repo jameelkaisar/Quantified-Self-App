@@ -1,0 +1,19 @@
+.card {
+    transition: transform 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .card:hover {
+        transform: scale(1.02);
+    }
+}
+
+.card-link {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+.card-link:hover {
+    color: inherit;
+    text-decoration: inherit;
+}

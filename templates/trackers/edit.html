@@ -47,7 +47,7 @@
                     <div>
                         <label for="t_option_exist[{{ option.to_id }}]">Option {{ loop.index }}:</label>
                         <input type="text" id="t_option_exist[{{ option.to_id }}]" name="t_option_exist[{{ option.to_id }}]" maxlength="64" value="{{ option.to_name }}" required>
-                        <button onclick="/*alert('This feature will be added soon!'); return false;*/ remOptionExist(this); return false;">Delete Option</button>
+                        <button onclick="alert('This feature will be added soon!'); return false; remOptionExist(this); return false;">Delete Option</button>
                     </div>
                     {% endfor %}
                 </div>
