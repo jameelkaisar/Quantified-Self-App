@@ -7,117 +7,163 @@
         <link rel="shortcut icon" href="#">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css')}}">
+        <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css')}}"> -->
         <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
     </head>
     <body>
         {% include 'components/messages.html' %}
 
         <div class="container">
-            <div>ID: {{ tracker.t_id }}</div>
-            <div>Name: {{ tracker.t_name }}</div>
-            <div>Description: {{ tracker.t_desc }}</div>
-            <div>Type: {{ tracker.t_type }}</div>
-            <div>Type Name: {{ tracker.t_type_name.tt_name }}</div>
-            <div>Unit: {{ tracker.t_unit }}</div>
-            <div>Options: {{ tracker.t_options }}</div>
-            <div>Logs: {{ tracker.t_logs }}</div>
-        </div>
-
-        <div class="container">
-            <a href="/trackers/edit?id={{ tracker.t_id }}" class="btn btn-primary">Edit Tracker</a>
-            <form action="" method="POST" style="display: inline;">
-                <input type="hidden" name="action" value="1">
-                <button type="submit" class="btn btn-danger">Delete Tracker</button>
-            </form>
-        </div>
-
-        <div class="container">
-            <form action="" method="POST">
-                <input type="hidden" name="action" value="2">
-                <p>
-                    <label for="tl_time">Time:</label>
-                    <input type="datetime-local" id="tl_time" name="tl_time" required>
-                </p>
-                <p>
-                    <label for="tl_note">Note:</label>
-                    <textarea rows="5" id="tl_note" name="tl_note" maxlength="256"></textarea>
-                </p>
-                {% if tracker.t_type_name.tt_name == "Boolean" %}
-                <label for="tl_val">Value:</label>
-                <select id="tl_val" name="tl_val" required>
-                    <option value="1" selected>Yes</option>
-                    <option value="0">No</option>
-                </select>
-                {% elif tracker.t_type_name.tt_name == "Integer" %}
-                <label for="tl_val">Value:</label>
-                <input type="number" step="1" id="tl_val" name="tl_val" required>{{ tracker.t_unit.tu_name }}
-                {% elif tracker.t_type_name.tt_name == "Decimal" %}
-                <label for="tl_val">Value:</label>
-                <input type="number" step="0.01" id="tl_val" name="tl_val" required>{{ tracker.t_unit.tu_name }}
-                {% elif tracker.t_type_name.tt_name == "Duration" %}
-                <label for="tl_val_h">Hours:</label>
-                <input type="number" step="1" min="0" max="100" id="tl_val_h" name="tl_val_h" value="0" required>
-                <label for="tl_val_m">Minutes:</label>
-                <input type="number" step="1" min="0" max="59" id="tl_val_m" name="tl_val_m" value="0" required>
-                <label for="tl_val_s">Seconds:</label>
-                <input type="number" step="1" min="0" max="59" id="tl_val_s" name="tl_val_s" value="0" required>
-                {% elif tracker.t_type_name.tt_name == "Single Select" %}
-                <label for="tl_val">Value:</label>
-                <select id="tl_val" name="tl_val" required>
-                    <option value="" selected hidden disabled>Choose Option</option>
-                    {% for option in tracker.t_options %}
-                    <option value="{{ option.to_id }}">{{ option.to_name }}</option>
-                    {% endfor %}
-                </select>
-                {% elif tracker.t_type_name.tt_name == "Multi Select" %}
-                {% for option in tracker.t_options %}
-                <input type="checkbox" id="tl_val[{{ option.to_id }}]" name="tl_val[{{ option.to_id }}]" value="1">
-                <label for="tl_val[{{ option.to_id }}]">{{ option.to_name }}</label><br>
-                {% endfor %}
-                {% endif %}
-                <button type="submit" class="btn btn-primary">Add Log</button>
-            </form>
-        </div>
-
-        <div class="container">
-            {% for log in tracker.t_logs %}
-            <div>
-                <div>
-                    ID: {{ log.tl_id }} | Time: {{ log.tl_time }} | Note: {{ log.tl_note }} | Tracker: {{ log.tl_tracker }}
-                    {% for val in log.tl_vals %}
-                    <br>
-                    ID: {{ val.tv_id }} | Value: {{ val.tv_val }} | Log: {{ val.tv_log }}
-                    <br>
-                    {% if tracker.t_type_name.tt_name == "Boolean" %}
-                        {% if val.tv_val | int == 1 %}
-                        Yes
-                        {% elif val.tv_val | int == 0 %}
-                        No
-                        {% endif %}
-                    {% elif tracker.t_type_name.tt_name == "Integer" %}
-                        {{ val.tv_val | int }}
-                    {% elif tracker.t_type_name.tt_name == "Decimal" %}
-                        {{ val.tv_val | round(2) }}
-                    {% elif tracker.t_type_name.tt_name == "Duration" %}
-                        Hours: {{ val.tv_val // 3600 }} | Minutes: {{ (val.tv_val % 3600) // 60 }} | Seconds: {{ (val.tv_val % 60) | int }}
-                    {% elif tracker.t_type_name.tt_name == "Single Select" %}
-                        {{ options[val.tv_val | int] }}
-                    {% elif tracker.t_type_name.tt_name == "Multi Select" %}
-                        {{ options[val.tv_val | int] }}
-                    {% endif %}
-                    {% endfor %}
+            <div class="row equal bg-light mt-4">
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="card flex-fill">
+                        <div class="card-header">Tracker Info</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ tracker.t_name }}</h5>
+                            <p class="card-text">{{ tracker.t_desc }}</p>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-end">
+                            <a href="/trackers/edit?id={{ tracker.t_id }}" class="btn btn-primary m-1">Edit Tracker</a>
+                            <form action="" method="POST" style="display: inline;">
+                                <input type="hidden" name="action" value="1">
+                                <button type="submit" class="btn btn-danger m-1">Delete Tracker</button>
+                            </form>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <span>Type: {{ tracker.t_type_name.tt_name }}</span>
+                            {% if tracker.t_type_name.tt_name == "Integer" or tracker.t_type_name.tt_name == "Decimal" %}
+                            | <span>Unit: {{ tracker.t_unit.tu_name }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="container">
-                    <a href="/trackers/log/edit?tid={{ tracker.t_id }}&lid={{ log.tl_id }}" class="btn btn-primary">Edit Log</a>
-                    <form action="" method="POST" style="display: inline;">
-                        <input type="hidden" name="action" value="3">
-                        <input type="hidden" name="tl_id" value="{{ log.tl_id }}">
-                        <button type="submit" class="btn btn-danger">Delete Log</button>
-                    </form>
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="flex-fill">
+                        <form action="" method="POST" style="width: 100%;">
+                            <input type="hidden" name="action" value="2">
+                            <div class="mb-3">
+                                <label for="tl_time" class="form-label">Time</label>
+                                <input type="datetime-local" class="form-control" id="tl_time" name="tl_time" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tl_note" class="form-label">Note</label>
+                                <textarea rows="5" class="form-control" id="tl_note" name="tl_note" maxlength="256"></textarea>
+                            </div>
+                            {% if tracker.t_type_name.tt_name == "Boolean" %}
+                            <label for="tl_val" class="form-label">Value</label>
+                            <div class="mb-3">
+                                <select id="tl_val" name="tl_val" class="form-select" required>
+                                    <option value="1" selected>Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            {% elif tracker.t_type_name.tt_name == "Integer" %}
+                            <label for="tl_val" class="form-label">Value</label>
+                            <div class="input-group mb-3">
+                                <input type="number" step="1" id="tl_val" name="tl_val" class="form-control" aria-describedby="tl_unit" required>
+                                <span class="input-group-text" id="tl_unit">{{ tracker.t_unit.tu_name }}</span>
+                            </div>
+                            {% elif tracker.t_type_name.tt_name == "Decimal" %}
+                            <label for="tl_val" class="form-label">Value</label>
+                            <div class="input-group mb-3">
+                                <input type="number" step="0.01" id="tl_val" name="tl_val" class="form-control" aria-describedby="tl_unit" required>
+                                <span class="input-group-text" id="tl_unit">{{ tracker.t_unit.tu_name }}</span>
+                            </div>
+                            {% elif tracker.t_type_name.tt_name == "Duration" %}
+                            <label class="form-label">Value</label>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">H</span>
+                                <input type="number" step="1" min="0" max="100" id="tl_val_h" name="tl_val_h" class="form-control" placeholder="Hours" required>
+                                <span class="input-group-text">M</span>
+                                <input type="number" step="1" min="0" max="59" id="tl_val_m" name="tl_val_m" class="form-control" placeholder="Minutes" required>
+                                <span class="input-group-text">S</span>
+                                <input type="number" step="1" min="0" max="59" id="tl_val_s" name="tl_val_s" class="form-control" placeholder="Seconds" required>
+                            </div>
+                            {% elif tracker.t_type_name.tt_name == "Single Select" %}
+                            <label for="tl_val" class="form-label">Value</label>
+                            <div class="mb-3">
+                                <select id="tl_val" name="tl_val" class="form-select" required>
+                                    <option value="" selected hidden disabled>Choose Option</option>
+                                    {% for option in tracker.t_options %}
+                                    <option value="{{ option.to_id }}">{{ option.to_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% elif tracker.t_type_name.tt_name == "Multi Select" %}
+                            <label class="form-label">Values</label>
+                            {% for option in tracker.t_options %}
+                            <div class="mb-1 form-check">
+                                <input type="checkbox" id="tl_val[{{ option.to_id }}]" name="tl_val[{{ option.to_id }}]" value="1" class="form-check-input">
+                                <label for="tl_val[{{ option.to_id }}]" class="form-check-label">{{ option.to_name }}</label><br>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            <div class="d-flex justify-content-center mt-2">
+                                <button type="submit" class="btn btn-primary">Add Log</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-            {% endfor %}
+        </div>
+
+        <div class="container">
+            <div class="row equal bg-light mt-4">
+                {% for log in tracker.t_logs %}
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="card flex-fill">
+                        <div class="card-header">Log Info</div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {% if tracker.t_type_name.tt_name == "Multi Select" %}
+                                Values
+                                {% else %}
+                                Value
+                                {% endif %}
+                            </h5>
+                            <div class="card-text">
+                                {% for val in log.tl_vals %}
+                                <div>
+                                    {% if tracker.t_type_name.tt_name == "Boolean" %}
+                                        {% if val.tv_val | int == 1 %}
+                                        Yes
+                                        {% elif val.tv_val | int == 0 %}
+                                        No
+                                        {% endif %}
+                                    {% elif tracker.t_type_name.tt_name == "Integer" %}
+                                        {{ val.tv_val | int }}
+                                    {% elif tracker.t_type_name.tt_name == "Decimal" %}
+                                        {{ val.tv_val | round(2) }}
+                                    {% elif tracker.t_type_name.tt_name == "Duration" %}
+                                        Hours: {{ val.tv_val // 3600 }} | Minutes: {{ (val.tv_val % 3600) // 60 }} | Seconds: {{ (val.tv_val % 60) | int }}
+                                    {% elif tracker.t_type_name.tt_name == "Single Select" %}
+                                        {{ options[val.tv_val | int] }}
+                                    {% elif tracker.t_type_name.tt_name == "Multi Select" %}
+                                        {{ options[val.tv_val | int] }}
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if log.tl_note | length > 0 %}
+                            <h5 class="card-title pt-2">Note</h5>
+                            <div class="card-text">{{ log.tl_note }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-end">
+                            <a href="/trackers/log/edit?tid={{ tracker.t_id }}&lid={{ log.tl_id }}" class="btn btn-primary m-1">Edit Log</a>
+                            <form action="" method="POST" style="display: inline;">
+                                <input type="hidden" name="action" value="3">
+                                <input type="hidden" name="tl_id" value="{{ log.tl_id }}">
+                                <button type="submit" class="btn btn-danger m-1">Delete Log</button>
+                            </form>
+                        </div>
+                        <div class="card-footer text-muted">
+                            {{ log.tl_time }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
         <script src="{{ url_for('static', filename='js/add_log.js')}}"></script>
