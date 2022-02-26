@@ -37,18 +37,19 @@ function setTypeOptions(select) {
         addOption();
     }
     else if (selected == "Integer" || selected == "Decimal") {
-        const label = document.createElement("label");
+        const block = document.createElement("div");
         const unit = document.createElement("input");
 
-        label.setAttribute("for", "t_unit");
-        label.innerText = "Unit:";
+        block.classList.add("mb-3");
         unit.type = "text";
+        unit.classList.add("form-control");
         unit.id = "t_unit";
         unit.name = "t_unit";
         unit.maxLength = "16";
+        unit.setAttribute("placeholder", "Unit");
         unit.required = true;
-        t_unit_block.appendChild(label);
-        t_unit_block.appendChild(unit);
+        block.appendChild(unit);
+        t_unit_block.appendChild(block);
 
         controller.style.display = "none";
     }
@@ -73,23 +74,22 @@ function changeOptionsButton(to_total) {
 function addOption() {
     const to_total = document.getElementById("to_total");
     const t_options = document.getElementById("t_options");
-    const para = document.createElement("p");
-    const label = document.createElement("label");
+    const block = document.createElement("div");
     const option = document.createElement("input");
 
-    label.setAttribute("for", "t_option[" + parseInt(to_total.value) + "]");
-    label.innerText = "Option " + (parseInt(to_total.value)+1) + ":";
+    block.classList.add("mb-3");
     option.type = "text";
+    option.classList.add("form-control");
     option.id = "t_option[" + parseInt(to_total.value) + "]";
     option.name = "t_option[" + parseInt(to_total.value) + "]";
     option.maxLength = "64";
+    option.setAttribute("placeholder", "Option " + (parseInt(to_total.value)+1));
     option.required = true;
-    para.appendChild(label);
-    para.appendChild(option);
+    block.appendChild(option);
 
     to_total.value = parseInt(to_total.value) + 1;
     changeOptionsButton(to_total);
-    t_options.appendChild(para);
+    t_options.appendChild(block);
 }
 
 
