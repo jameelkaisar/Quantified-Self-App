@@ -11,7 +11,7 @@ function resetForm() {
     while (t_options.firstChild) {
         t_options.removeChild(t_options.firstChild);
     }
-    controller.style.display = "none";
+    controller.classList.add("d-none");
 
     changeOptionsButton(to_total);
 }
@@ -33,7 +33,7 @@ function setTypeOptions(select) {
     }
 
     if (selected == "Single Select" || selected == "Multi Select") {
-        controller.style.display = "block";
+        controller.classList.remove("d-none");
         addOption();
     }
     else if (selected == "Integer" || selected == "Decimal") {
@@ -51,10 +51,10 @@ function setTypeOptions(select) {
         block.appendChild(unit);
         t_unit_block.appendChild(block);
 
-        controller.style.display = "none";
+        controller.classList.add("d-none");
     }
     else {
-        controller.style.display = "none";
+        controller.classList.add("d-none");
     }
 }
 

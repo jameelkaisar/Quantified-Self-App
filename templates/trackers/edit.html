@@ -7,65 +7,67 @@
         <link rel="shortcut icon" href="#">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css')}}">
         <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
     </head>
     <body>
         {% include 'components/messages.html' %}
 
         <div class="container">
-            <form action="" method="POST">
-                <p>
-                    <label for="t_name">Tracker Name:</label>
-                    <input type="text" id="t_name" name="t_name" maxlength="64" value="{{ tracker.t_name }}" required>
-                </p>
-                <p>
-                    <label for="t_desc">Tracker Description:</label>
-                    <textarea rows="5" id="t_desc" name="t_desc" maxlength="256">{{ tracker.t_desc }}</textarea>
-                </p>
-                <p>
-                    <div style="display: inline-block;">
-                        <label for="t_type">Tracker Type:</label>
-                        <select id="t_type" disabled>
-                            <option>{{ tracker.t_type_name.tt_name }}</option>
-                        </select>
+            <div class="row d-flex justify-content-center">
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="card flex-fill">
+                        <form action="" method="POST">
+                            <div class="card-header">Edit Tracker</div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="t_name" class="form-label">Tracker Name</label>
+                                    <input type="text" class="form-control" id="t_name" name="t_name" maxlength="64" value="{{ tracker.t_name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="t_desc" class="form-label">Tracker Description</label>
+                                    <textarea rows="5" class="form-control" id="t_desc" name="t_desc" maxlength="256">{{ tracker.t_desc }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="t_type" class="form-label">Tracker Type</label>
+                                    <select id="t_type" class="form-select" disabled>
+                                        <option>{{ tracker.t_type_name.tt_name }}</option>
+                                    </select>
+                                </div>
+                                <div id="t_unit_block">
+                                    {% if tracker.t_type_name.tt_name == "Integer" or tracker.t_type_name.tt_name == "Decimal" %}
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" id="t_unit" name="t_unit" maxlength="16" value="{{ tracker.t_unit.tu_name }}" placeholder="Unit" required>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <input type="hidden" id="to_total_exist" value="{{ tracker.t_options | length }}">
+                                <div id="t_options_exist">
+                                    {% for option in tracker.t_options %}
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" id="t_option_exist[{{ option.to_id }}]" name="t_option_exist[{{ option.to_id }}]" maxlength="64" value="{{ option.to_name }}" placeholder="Existing Option {{ loop.index }}" aria-describedby="t_option_exist_del[{{ option.to_id }}]" required>
+                                        <button class="btn btn-outline-danger" id="t_option_exist_del[{{ loop.index }}]" data-bs-toggle="tooltip" data-bs-placement="right" title="Warning: Deletion of existing options will result in change or even deletion of current logs" onclick="alert('This feature will be added soon!'); return false; remOptionExist(this); return false;"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" id="to_total" name="to_total" value="0">
+                                <div id="t_options"></div>
+                                <div id="t_options_control" class="d-flex justify-content-center {% if tracker.t_options | length == 0 %}d-none{% endif %}">
+                                    <button id="t_options_add" class="btn btn-primary mx-1" onclick="addOption(); return false;">Add Option</button>
+                                    <button id="t_options_rem" class="btn btn-danger mx-1" onclick="remOption(); return false;" disabled>Remove Option</button>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex justify-content-center align-items-end">
+                                <input type="reset" class="btn btn-primary mx-1" value="Reset" onclick="window.location.reload();">
+                                <input type="submit" class="btn btn-primary mx-1" value="Edit Tracker">
+                            </div>
+                        </form>
                     </div>
-                    <div id="t_unit_block" style="display: inline-block;">
-                        {% if tracker.t_type_name.tt_name == "Integer" or tracker.t_type_name.tt_name == "Decimal" %}
-                        <label for="t_unit">Unit:</label>
-                        <input type="text" id="t_unit" name="t_unit" maxlength="16" value="{{ tracker.t_unit.tu_name }}" required>
-                        {% endif %}
-                    </div>
-                </p>
-                <div id="t_options_exist">
-                    {% if tracker.t_options | length > 0 %}
-                    Existing Options:
-                    <br>
-                    Tooltip: Warning: Deletion of existing options will result in change or even deletion of current logs
-                    {% endif %}
-                    {% for option in tracker.t_options %}
-                    <div>
-                        <label for="t_option_exist[{{ option.to_id }}]">Option {{ loop.index }}:</label>
-                        <input type="text" id="t_option_exist[{{ option.to_id }}]" name="t_option_exist[{{ option.to_id }}]" maxlength="64" value="{{ option.to_name }}" required>
-                        <button onclick="alert('This feature will be added soon!'); return false; remOptionExist(this); return false;">Delete Option</button>
-                    </div>
-                    {% endfor %}
                 </div>
-                <input type="hidden" id="to_total" name="to_total" value="0">
-                <div id="t_options"></div>
-                <p id="t_options_control"{% if tracker.t_options %} style="display: block;"{% else %} style="display: none;"{% endif %}>
-                    <button id="t_options_add" onclick="addOption(); return false;">Add Option</button>
-                    <button id="t_options_rem" onclick="remOption(); return false;" disabled>Remove Option</button>
-                </p>
-                <p>
-                    <input type="reset" value="Reset" onclick="window.location.reload();">
-                    <input type="submit" value="Edit Tracker">
-                </p>
-            </form>
+            </div>
         </div>
 
-        <script src="{{ url_for('static', filename='js/edit_tracker.js')}}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/edit_tracker.js')}}"></script>
         <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
     </body>
 </html>
