@@ -140,9 +140,9 @@
                                         No
                                         {% endif %}
                                     {% elif tracker.t_type_name.tt_name == "Integer" %}
-                                        {{ val.tv_val | int }}
+                                        {{ val.tv_val | int }} {{ tracker.t_unit.tu_name }}
                                     {% elif tracker.t_type_name.tt_name == "Decimal" %}
-                                        {{ val.tv_val | round(2) }}
+                                        {{ val.tv_val | round(2) }} {{ tracker.t_unit.tu_name }}
                                     {% elif tracker.t_type_name.tt_name == "Duration" %}
                                         Hours: {{ val.tv_val // 3600 }} | Minutes: {{ (val.tv_val % 3600) // 60 }} | Seconds: {{ (val.tv_val % 60) | int }}
                                     {% elif tracker.t_type_name.tt_name == "Single Select" %}

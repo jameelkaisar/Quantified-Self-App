@@ -497,13 +497,13 @@ def trackers_edit():
                 #     db.session.delete(option)
                 # db.session.commit()
             elif tt_name == "Multi Select":
+                flash("[Delete Multi Select Option] This feature will be added soon!", "info")
                 # Delete all logs of type "Multi Select" having all int(log.t_vals) in to_ids_del
                 # Delete all values with int(value) in to_ids_del
                 # Delete all options with ids in to_ids_del
-                flash("[Delete Multi Select Option] This feature will be added soon!", "info")
 
             flash("Tracker Edited", "success")
-            return redirect(request.full_path) # Temp
+            return redirect(request.full_path) # Temp (Delete this line later)
 
         return redirect(f"/trackers/view?id={t_id}")
 
