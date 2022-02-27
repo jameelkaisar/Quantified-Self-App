@@ -1,0 +1,20 @@
+<div style="background-color: white; border-bottom: 1px solid #dee2e6!important;">
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <i class="fs-4 fa-solid fa-chart-column mx-3"></i>
+                <span class="fs-4">Quantified Self App</span>
+            </a>
+            <ul class="nav nav-pills">
+                {% if user.is_authenticated %}
+                <li class="nav-item"><a href="/dashboard" class="btn btn-outline-primary mx-1">Dashboard</a></li>
+                <li class="nav-item"><a href="/api" class="btn btn-outline-primary mx-1">API</a></li>
+                <li class="nav-item"><a href="/logout" class="btn btn-outline-primary mx-1">Logout</a></li>
+                {% else %}
+                <li class="nav-item"><a href="/login" class="btn btn-outline-primary mx-1">Login</a></li>
+                <li class="nav-item"><a href="/register" class="btn btn-outline-primary mx-1">Register</a></li>
+                {% endif %}
+            </ul>
+        </header>
+    </div>
+</div>

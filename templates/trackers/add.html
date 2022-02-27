@@ -6,9 +6,12 @@
         <title>Add Tracker - Quantified Self</title>
         <link rel="shortcut icon" href="#">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
     </head>
     <body>
         {% include 'components/messages.html' %}
+        {% include 'components/navbar.html' %}
 
         <div class="container">
             <div class="row d-flex justify-content-center">

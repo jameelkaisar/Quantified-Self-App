@@ -24,13 +24,18 @@ from datetime import datetime
 
 @app.route("/", methods=["GET"])
 def home():
-    return render_template("core/home.html", user=current_user)
+    # return render_template("core/home.html", user=current_user)
+
+    if current_user.is_authenticated:
+        return redirect("/trackers")
+    else:
+        return redirect("/login")
 
 
 @app.route("/trackers", methods=["GET"])
 @login_required
 def trackers():
-    trackers = db.session.query(TrackerModel.t_id, TrackerModel.t_name, TrackerModel.t_desc).filter(TrackerModel.t_user == current_user.id).all()
+    trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
     return render_template("trackers/main.html", user=current_user, trackers=trackers)
 
 
@@ -637,7 +642,7 @@ def register():
         flash("Registered successfully", "info")
         return redirect(request.args.get("next", "/"))
 
-    return render_template("auth/register.html", request=request)
+    return render_template("auth/register.html", user=current_user, request=request)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -657,4 +662,4 @@ def login():
             flash("Invalid Credentials", "info")
             return redirect(request.full_path)
 
-    return render_template("auth/login.html", request=request)
+    return render_template("auth/login.html", user=current_user, request=request)
