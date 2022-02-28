@@ -253,7 +253,7 @@ def dashboard():
 @login_required
 def trackers():
     trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
-    return render_template("trackers/main.html", user=current_user, trackers=trackers)
+    return render_template("trackers/trackers.html", user=current_user, trackers=trackers)
 
 
 @app.route("/trackers/view", methods=["GET", "POST"])
