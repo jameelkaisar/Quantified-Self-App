@@ -14,6 +14,7 @@
         {% include 'components/messages.html' %}
         {% include 'components/navbar.html' %}
 
+        {% if trackers | length > 0 %}
         <div class="container">
             <div class="row equal d-flex justify-content-center mt-4">
                 <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
@@ -25,7 +26,7 @@
                                 <div class="mb-3">
                                     <label for="e_format" class="form-label">Export Format</label>
                                     <select id="e_format" name="e_format" class="form-select" required>
-                                        <option value="" selected hidden disabled>Choose Tracker Type</option>
+                                        <option value="" selected hidden disabled>Choose Export Format</option>
                                         {% for value, text in export_options.items() %}
                                         <option value="{{ value }}">{{ text }}</option>
                                         {% endfor %}
@@ -40,6 +41,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <div class="container">
             <div class="row equal d-flex justify-content-center mt-4">

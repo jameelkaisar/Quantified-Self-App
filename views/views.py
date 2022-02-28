@@ -30,6 +30,7 @@ import matplotlib.dates as mdates
 import numpy as np
 
 from pathlib import Path
+import csv
 
 
 @app.route("/", methods=["GET"])
@@ -47,7 +48,7 @@ def home():
 def dashboard():
     trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
 
-    export_options = {1: "CSV"}
+    export_options = {1: "CSV", 2: "TSV"}
 
     if request.method == "POST":
         action = request.form.get("action", "")
@@ -69,10 +70,69 @@ def dashboard():
             now_str = now.strftime("%Y%m%d_%H%M%S_%f")
 
             if e_format == 1:
-                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv", "w") as f:
-                    f.write("test")
+                count = 0
+                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv", "w", newline="") as f:
+                    writer = csv.writer(f, delimiter=",", quoting=csv.QUOTE_MINIMAL)
+                    writer.writerow(["S No", "Tracker Name", "Tracker Description", "Tracker Type", "Tracker Unit", "Log Time", "Log Note", "Log Value"])
+                    for tracker in trackers:
+                        t_name = tracker.t_name
+                        t_desc = tracker.t_desc
+                        tt_name = tracker.t_type_name.tt_name
+                        if tt_name in ["Integer", "Decimal"]:
+                            tu_name = tracker.t_unit.tu_name
+                        else:
+                            tu_name = None
+                        t_logs = tracker.t_logs
+                        for log in t_logs:
+                            tl_time = log.tl_time
+                            tl_note = log.tl_note
+                            tl_vals = log.tl_vals
+                            for tl_val in tl_vals:
+                                tv_val = tl_val.tv_val
+                                count += 1
+                                writer.writerow([count, t_name, t_desc, tt_name, tu_name, tl_time, tl_note, tv_val])
 
                 return redirect(url_for("static", filename=f"userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv"))
+
+            elif e_format == 2:
+                count = 0
+                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.tsv", "w", newline="") as f:
+                    writer = csv.writer(f, delimiter="\t", quoting=csv.QUOTE_NONE)
+                    writer.writerow(["S No", "Tracker Name", "Tracker Description", "Tracker Type", "Tracker Unit", "Log Time", "Log Note", "Log Value"])
+                    for tracker in trackers:
+                        t_name = tracker.t_name
+                        t_name = t_name.replace("\t", "    ")
+                        t_name = t_name.replace("\n", "    ")
+                        t_name = t_name.replace("\r", "")
+                        t_desc = tracker.t_desc
+                        t_desc = t_desc.replace("\t", "    ")
+                        t_desc = t_desc.replace("\n", "    ")
+                        t_desc = t_desc.replace("\r", "")
+                        tt_name = tracker.t_type_name.tt_name
+                        tt_name = tt_name.replace("\t", "    ")
+                        tt_name = tt_name.replace("\n", "    ")
+                        tt_name = tt_name.replace("\r", "")
+                        if tt_name in ["Integer", "Decimal"]:
+                            tu_name = tracker.t_unit.tu_name
+                            tu_name = tu_name.replace("\t", "    ")
+                            tu_name = tu_name.replace("\n", "    ")
+                            tu_name = tu_name.replace("\r", "")
+                        else:
+                            tu_name = None
+                        t_logs = tracker.t_logs
+                        for log in t_logs:
+                            tl_time = log.tl_time
+                            tl_note = log.tl_note
+                            tl_note = tl_note.replace("\t", "    ")
+                            tl_note = tl_note.replace("\n", "    ")
+                            tl_note = tl_note.replace("\r", "")
+                            tl_vals = log.tl_vals
+                            for tl_val in tl_vals:
+                                tv_val = tl_val.tv_val
+                                count += 1
+                                writer.writerow([count, t_name, t_desc, tt_name, tu_name, tl_time, tl_note, tv_val])
+
+                return redirect(url_for("static", filename=f"userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.tsv"))
 
     Path(f"static/userdata/dashboard/graphs/{current_user.id}/").mkdir(parents=True, exist_ok=True)
 
