@@ -14,6 +14,7 @@ from flask import request
 from flask import redirect
 from flask import render_template
 from flask import flash
+from flask import url_for
 from flask import current_app as app
 from flask_login import login_required
 from flask_login import current_user
@@ -27,7 +28,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
-import datetime as dt
 
 from pathlib import Path
 
@@ -42,10 +42,37 @@ def home():
         return redirect("/login")
 
 
-@app.route("/dashboard", methods=["GET"])
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
     trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
+
+    export_options = {1: "CSV"}
+
+    if request.method == "POST":
+        action = request.form.get("action", "")
+        if not (action.isdigit() and int(action) in [1]):
+            flash("Invalid Request", "danger")
+            return redirect(request.full_path)
+        action = int(action)
+
+        if action == 1:
+            e_format = request.form.get("e_format", "")
+            if not (e_format.isdigit() and int(e_format) in export_options):
+                flash("Invalid Request", "danger")
+                return redirect(request.full_path)
+            e_format = int(e_format)
+
+            Path(f"static/userdata/dashboard/logs/{current_user.id}/").mkdir(parents=True, exist_ok=True)
+
+            now = datetime.now()
+            now_str = now.strftime("%Y%m%d_%H%M%S_%f")
+
+            if e_format == 1:
+                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv", "w") as f:
+                    f.write("test")
+
+                return redirect(url_for("static", filename=f"userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv"))
 
     Path(f"static/userdata/dashboard/graphs/{current_user.id}/").mkdir(parents=True, exist_ok=True)
 
@@ -158,7 +185,7 @@ def dashboard():
             plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
             plt.clf()
 
-    return render_template("dashboard/dashboard.html", user=current_user, trackers=trackers)
+    return render_template("dashboard/dashboard.html", user=current_user, trackers=trackers, export_options=export_options)
 
 
 @app.route("/trackers", methods=["GET"])
