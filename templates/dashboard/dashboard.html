@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/tracker_view.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
+    </head>
+    <body class="bg-light">
+        {% include 'components/messages.html' %}
+        {% include 'components/navbar.html' %}
+
+        <div class="container">
+            <div class="row equal d-flex justify-content-center bg-light mt-4">
+                {% for tracker in trackers %}
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="card flex-fill">
+                        <div class="card-header">Tracker Trend</div>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <img src="{{ url_for('static', filename='userdata/dashboard/graphs/' + user.id | string + '/' + tracker.t_id | string + '_main.png')}}" class="img-fluid">
+                            </div>
+                            <h5 class="card-title d-flex justify-content-center align-items-center">
+                                {{ tracker.t_name }}
+                            </h5>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-end">
+                            <!-- <a href="/dashboard/tracker?id={{ tracker.t_id }}" class="btn btn-primary m-1">View Graphs</a> -->
+                            <a href="/trackers/view?id={{ tracker.t_id }}" class="btn btn-primary m-1">View Logs</a>
+                        </div>
+                        <div class="card-footer text-muted">
+                            Type: {{ tracker.t_type_name.tt_name }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+    </body>
+</html>

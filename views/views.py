@@ -21,6 +21,16 @@ from flask_login import login_user
 from flask_login import logout_user
 from datetime import datetime
 
+import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import numpy as np
+import datetime as dt
+
+from pathlib import Path
+
 
 @app.route("/", methods=["GET"])
 def home():
@@ -30,6 +40,125 @@ def home():
         return redirect("/trackers")
     else:
         return redirect("/login")
+
+
+@app.route("/dashboard", methods=["GET"])
+@login_required
+def dashboard():
+    trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
+
+    Path(f"static/userdata/dashboard/graphs/{current_user.id}/").mkdir(parents=True, exist_ok=True)
+
+    for tracker in trackers:
+        try:
+            if tracker.t_type_name.tt_name in ["Boolean"]:
+                logs = tracker.t_logs
+
+                if len(logs) < 1:
+                    plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                    plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                    plt.clf()
+                    continue
+
+                x = ["Yes", "No"]
+                y = [sum(map(lambda x: int(x.tl_vals[0].tv_val), logs))]
+                y.append(len(logs) - y[0])
+
+                patches, texts, _ = plt.pie(y, autopct='%1.0f%%')
+                plt.legend(patches, x, loc='upper right', bbox_to_anchor=(1.2, 1.))
+
+                plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                plt.clf()
+
+            elif tracker.t_type_name.tt_name in ["Integer", "Decimal"]:
+                logs = tracker.t_logs
+
+                if len(logs) < 3:
+                    plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                    plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                    plt.clf()
+                    continue
+
+                x, y = zip(*map(lambda x: (x.tl_time, int(x.tl_vals[0].tv_val)), logs))
+
+                x_0 = int(x[0].strftime('%Y%m%d%H%M%S%f'))
+                xint = [(int(d.strftime('%Y%m%d%H%M%S%f')) - x_0) for d in x]
+
+                z = np.polyfit(xint, y, 1)
+                p = np.poly1d(z)
+
+                plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
+                plt.plot(x, y, 'go-', label='Data', linewidth=2, markersize=10)
+                plt.plot(x, p(xint), 'b--', label='Fit')
+                plt.legend(loc='best')
+                plt.gcf().autofmt_xdate()
+
+                plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                plt.clf()
+
+            elif tracker.t_type_name.tt_name in ["Duration"]:
+                logs = tracker.t_logs
+
+                if len(logs) < 3:
+                    plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                    plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                    plt.clf()
+                    continue
+
+                x, y = zip(*map(lambda x: (x.tl_time, int(x.tl_vals[0].tv_val)), logs))
+
+                y = list(map(lambda t: round(t//60 + (t%60)/60, 2), y))
+
+                x_0 = int(x[0].strftime('%Y%m%d%H%M%S%f'))
+                xint = [(int(d.strftime('%Y%m%d%H%M%S%f')) - x_0) for d in x]
+
+                z = np.polyfit(xint, y, 1)
+                p = np.poly1d(z)
+
+                plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
+                plt.plot(x, y, 'go-', label='Data', linewidth=2, markersize=10)
+                plt.plot(x, p(xint), 'b--', label='Fit')
+                plt.legend(loc='best')
+                plt.gcf().autofmt_xdate()
+
+                plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                plt.clf()
+
+            elif tracker.t_type_name.tt_name in ["Single Select", "Multi Select"]:
+                options = {x.to_id: x.to_name for x in tracker.t_options}
+                logs = tracker.t_logs
+
+                if len(logs) < 1:
+                    plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                    plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                    plt.clf()
+                    continue
+
+                d = {}
+                for log in logs:
+                    for val in log.tl_vals:
+                        if options[int(val.tv_val)] not in d:
+                            d[options[int(val.tv_val)]] = 0
+                        d[options[int(val.tv_val)]] += 1
+
+                x, y = zip(*map(lambda x: (x, d[x]), d.keys()))
+
+                patches, texts, _ = plt.pie(y, autopct='%1.0f%%')
+                plt.legend(patches, x, loc='upper right', bbox_to_anchor=(1.2, 1.))
+
+                plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                plt.clf()
+
+            else:
+                plt.annotate('Graph not available for this type.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+                plt.clf()
+        except:
+            plt.annotate('Error while plotting the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+            plt.savefig(f"static/userdata/dashboard/graphs/{current_user.id}/{tracker.t_id}_main.png")
+            plt.clf()
+
+    return render_template("dashboard/dashboard.html", user=current_user, trackers=trackers)
 
 
 @app.route("/trackers", methods=["GET"])
