@@ -15,7 +15,7 @@
         {% include 'components/navbar.html' %}
 
         <div class="container">
-            <div class="row equal d-flex justify-content-center bg-light mt-4">
+            <div class="row equal d-flex justify-content-center mt-4">
                 {% for tracker in trackers %}
                 <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
                     <div class="card flex-fill">
@@ -34,6 +34,20 @@
                         </div>
                         <div class="card-footer text-muted">
                             Type: {{ tracker.t_type_name.tt_name }}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="card flex-fill">
+                        <div class="card-header">No Tracker Added</div>
+                        <div class="card-body">
+                            <div class="card-text">
+                                Please Add a Tracker First
+                            </div>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-end">
+                            <a href="/trackers/add" class="btn btn-primary m-1">Add Tracker</a>
                         </div>
                     </div>
                 </div>
