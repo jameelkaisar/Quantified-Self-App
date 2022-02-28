@@ -16,11 +16,20 @@ class UserModel(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
 
+    user_token = db.relationship("APIToken", cascade="all, delete", uselist=False)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
+class APIToken(db.Model):
+    __tablename__ = "tokens"
+
+    api_token = db.Column(db.String(64), primary_key=True)
+    api_user = db.Column(db.Integer(), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
 
 # Temperature, Exercises

@@ -7,6 +7,7 @@ sys.path.append("../database")
 from models.models import UserModel
 from models.models import TrackerModel, TrackerTypes, TrackerUnit, TrackerOptions
 from models.models import TrackerLogs, TrackerValues
+from models.models import APIToken
 from database.database import db
 
 from flask import request
@@ -30,6 +31,7 @@ import numpy as np
 
 from pathlib import Path
 import csv
+import os
 
 
 @app.route("/", methods=["GET"])
@@ -852,6 +854,14 @@ def register():
         user = UserModel(username=username)
         user.set_password(password)
         db.session.add(user)
+        db.session.commit()
+        tokens = APIToken.query.all()
+        tokens = list(map(lambda x: x.api_token, tokens))
+        token = os.urandom(32).hex()
+        while token in tokens:
+            token = os.urandom(32).hex()
+        api_token = APIToken(api_token=token, api_user=user.id)
+        db.session.add(api_token)
         db.session.commit()
         login_user(user)
         flash("Registered successfully", "info")
