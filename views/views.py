@@ -9,7 +9,6 @@ from models.models import TrackerModel, TrackerTypes, TrackerUnit, TrackerOption
 from models.models import TrackerLogs, TrackerValues
 from database.database import db
 
-from flask import Flask
 from flask import request
 from flask import redirect
 from flask import render_template

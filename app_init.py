@@ -18,6 +18,7 @@ app.app_context().push()
 
 
 from views.views import *
+from api.api_v1 import *
 
 
 db.create_all()
