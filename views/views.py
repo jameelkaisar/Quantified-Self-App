@@ -44,6 +44,31 @@ def home():
         return redirect("/login")
 
 
+@app.route("/api", methods=["GET", "POST"])
+@login_required
+def api():
+    if request.method == "POST":
+        action = request.form.get("action", "")
+        if not (action.isdigit() and int(action) in [1]):
+            flash("Invalid Request", "danger")
+            return redirect(request.full_path)
+        action = int(action)
+
+        if action == 1:
+            tokens = APIToken.query.all()
+            tokens = list(map(lambda x: x.api_token, tokens))
+            token = os.urandom(32).hex()
+            while token in tokens:
+                token = os.urandom(32).hex()
+            api_token = APIToken.query.filter(APIToken.api_user == current_user.id).first()
+            api_token.api_token = token
+            db.session.commit()
+
+        return redirect("/api")
+
+    return render_template("api/api.html", user=current_user)
+
+
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():

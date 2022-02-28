@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>API - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
+    </head>
+    <body class="bg-light">
+        {% include 'components/messages.html' %}
+        {% include 'components/navbar.html' %}
+
+        <div class="container">
+            <div class="row equal d-flex justify-content-center mt-4">
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="card flex-fill">
+                        <div class="card-header">API Token</div>
+                        <div class="card-body">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="user_token" name="user_token" maxlength="64" value="{{ user.user_token.api_token }}" readonly>
+                            </div>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-end">
+                            <button class="btn btn-primary mx-1" id="user_token_copy" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to copy" onclick="copyToken();" onmouseout="copyFinish();">Copy Token</button>
+                            <form action="" method="POST">
+                                <input type="hidden" name="action" value="1">
+                                <input type="submit" class="btn btn-primary mx-1" value="Generate New Token">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/api.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+    </body>
+</html>

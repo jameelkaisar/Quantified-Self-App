@@ -45,7 +45,7 @@
                                 <div id="t_options_exist">
                                     {% for option in tracker.t_options %}
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control" id="t_option_exist[{{ option.to_id }}]" name="t_option_exist[{{ option.to_id }}]" maxlength="64" value="{{ option.to_name }}" placeholder="Existing Option {{ loop.index }}" aria-describedby="t_option_exist_del[{{ option.to_id }}]" required>
+                                        <input type="text" class="form-control" id="t_option_exist[{{ option.to_id }}]" name="t_option_exist[{{ option.to_id }}]" maxlength="64" value="{{ option.to_name }}" placeholder="Existing Option {{ loop.index }}" aria-describedby="t_option_exist_del[{{ loop.index }}]" required>
                                         <button class="btn btn-outline-danger" id="t_option_exist_del[{{ loop.index }}]" data-bs-toggle="tooltip" data-bs-placement="right" title="Warning: Deletion of existing options will result in change or even deletion of current logs" onclick="alert('This feature will be added soon!'); return false; remOptionExist(this); return false;"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                     {% endfor %}
