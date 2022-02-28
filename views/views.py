@@ -71,7 +71,7 @@ def dashboard():
 
             if e_format == 1:
                 count = 0
-                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv", "w", newline="") as f:
+                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv", "w", encoding="utf-8", newline="") as f:
                     writer = csv.writer(f, delimiter=",", quoting=csv.QUOTE_MINIMAL)
                     writer.writerow(["S No", "Tracker Name", "Tracker Description", "Tracker Type", "Tracker Unit", "Log Time", "Log Note", "Log Value"])
                     for tracker in trackers:
@@ -96,7 +96,7 @@ def dashboard():
 
             elif e_format == 2:
                 count = 0
-                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.tsv", "w", newline="") as f:
+                with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.tsv", "w", encoding="utf-8", newline="") as f:
                     writer = csv.writer(f, delimiter="\t", quoting=csv.QUOTE_NONE)
                     writer.writerow(["S No", "Tracker Name", "Tracker Description", "Tracker Type", "Tracker Unit", "Log Time", "Log Note", "Log Value"])
                     for tracker in trackers:

@@ -36,7 +36,7 @@ class TrackerModel(db.Model):
     t_type_name = db.relationship("TrackerTypes", uselist=False)
     t_unit = db.relationship("TrackerUnit", cascade="all, delete", uselist=False)
     t_options = db.relationship("TrackerOptions", cascade="all, delete")
-    t_logs = db.relationship("TrackerLogs", cascade="all, delete")
+    t_logs = db.relationship("TrackerLogs", order_by="desc(TrackerLogs.tl_time)", cascade="all, delete")
 
 
 # Numerical, Multi Select
