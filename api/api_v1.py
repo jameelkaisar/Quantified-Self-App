@@ -153,22 +153,89 @@ class GetTrackerLogsAPI(Resource):
             abort(401, message="Invalid Token")
 
 
-# add_tracker_parser = reqparse.RequestParser()
-# add_tracker_parser.add_argument("name", type=str, required=True, help="Tracker name is missing")
+add_tracker_parser = reqparse.RequestParser()
+add_tracker_parser.add_argument("tracker_name", type=str, required=True, help="\"tracker_name\" is missing")
+add_tracker_parser.add_argument("tracker_description", type=str, required=True, help="\"tracker_description\" is missing")
+add_tracker_parser.add_argument("tracker_type_id", type=str, required=True, help="\"tracker_type_id\" is missing")
+add_tracker_parser.add_argument("tracker_unit", type=str)
+add_tracker_parser.add_argument("tracker_options", type=str, action="append")
 
-# class AddTrackerAPI(Resource):
-#     def post(self, token):
-#         tokens = APIToken.query.all()
-#         tokens = dict(map(lambda x: (x.api_token, x.api_user), tokens))
+class AddTrackerAPI(Resource):
+    def post(self, token):
+        tokens = APIToken.query.all()
+        tokens = dict(map(lambda x: (x.api_token, x.api_user), tokens))
 
-#         if token in tokens.keys():
-#             args = add_tracker_parser.parse_args()
-#             name = args.get("name")
+        if token in tokens.keys():
+            user_id = tokens[token]
 
-#             return {"message": "Name is " + name}, 200
+            args = add_tracker_parser.parse_args()
+            t_name = args.get("tracker_name", "")
+            t_desc = args.get("tracker_description", "")
+            t_type = args.get("tracker_type_id", "")
 
-#         else:
-#             abort(401, message="Invalid Token")
+            if not (0 < len(t_name) <= 64):
+                abort(401, message="Invalid Tracker Name")
+
+            if not (0 <= len(t_desc) <= 256):
+                abort(401, message="Invalid Tracker Description")
+
+            tracker_types = TrackerTypes.query.all()
+            if not (t_type.isdigit() and int(t_type) in map(lambda x: x.tt_id, tracker_types)):
+                abort(401, message="Invalid Tracker Type ID")
+            t_type = int(t_type)
+
+            tt_id = t_type
+            tt_name = list(filter(lambda x: x.tt_id == tt_id, tracker_types))[0].tt_name
+
+            if tt_name in ["Boolean"]:
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+
+            elif tt_name in ["Integer", "Decimal"]:
+                t_unit = args.get("tracker_unit", None)
+                if t_unit == None:
+                    abort(401, message="\"tracker_unit\" is missing")
+                if not (0 < len(t_unit) <= 16):
+                    abort(401, message="Invalid Tracker Unit")
+
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                unit = TrackerUnit(tu_name=t_unit, tu_tracker=tracker.t_id)
+                db.session.add(unit)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+
+            elif tt_name in ["Duration"]:
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+
+            elif tt_name in ["Single Select", "Multi Select"]:
+                t_options = args.get("tracker_options", None)
+                if t_options == None:
+                    abort(401, message="\"tracker_options\" is missing")
+                if not (len(t_options) > 0):
+                    abort(401, message="Invalid Tracker Options")
+
+                for i in t_options:
+                    if not (0 < len(i) <= 64):
+                        abort(401, message="Invalid Tracker Options")
+
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                for i in t_options:
+                    option = TrackerOptions(to_name=i, to_tracker=tracker.t_id)
+                    db.session.add(option)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+
+        else:
+            abort(401, message="Invalid Token")
 
 
 api = Api(app)
@@ -180,4 +247,4 @@ api.add_resource(GetTrackerTypesAPI, "/api/v1/<string:token>/getTrackerTypes")
 api.add_resource(GetTrackersAPI, "/api/v1/<string:token>/getTrackers")
 api.add_resource(GetTrackerLogsAPI, "/api/v1/<string:token>/getTrackerLogs/<string:tid>")
 
-# api.add_resource(AddTrackerAPI, "/api/v1/<string:token>/addTracker")
+api.add_resource(AddTrackerAPI, "/api/v1/<string:token>/addTracker")
