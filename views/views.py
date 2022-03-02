@@ -99,10 +99,12 @@ def dashboard():
                 count = 0
                 with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv", "w", encoding="utf-8", newline="") as f:
                     writer = csv.writer(f, delimiter=",", quoting=csv.QUOTE_MINIMAL)
-                    writer.writerow(["S No", "Tracker Name", "Tracker Description", "Tracker Type", "Tracker Unit", "Log Time", "Log Note", "Log Value"])
+                    writer.writerow(["S No", "Tracker ID", "Tracker Name", "Tracker Description", "Tracker Type ID", "Tracker Type Name", "Tracker Unit", "Log ID", "Log Time", "Log Note", "Log Value"])
                     for tracker in trackers:
+                        t_id = tracker.t_id
                         t_name = tracker.t_name
                         t_desc = tracker.t_desc
+                        t_type = tracker.t_type
                         tt_name = tracker.t_type_name.tt_name
                         if tt_name in ["Integer", "Decimal"]:
                             tu_name = tracker.t_unit.tu_name
@@ -110,13 +112,14 @@ def dashboard():
                             tu_name = None
                         t_logs = tracker.t_logs
                         for log in t_logs:
+                            tl_id = log.tl_id
                             tl_time = log.tl_time
                             tl_note = log.tl_note
                             tl_vals = log.tl_vals
                             for tl_val in tl_vals:
                                 tv_val = tl_val.tv_val
                                 count += 1
-                                writer.writerow([count, t_name, t_desc, tt_name, tu_name, tl_time, tl_note, tv_val])
+                                writer.writerow([count, t_id, t_name, t_desc, t_type, tt_name, tu_name, tl_id, tl_time, tl_note, tv_val])
 
                 return redirect(url_for("static", filename=f"userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.csv"))
 
@@ -124,8 +127,9 @@ def dashboard():
                 count = 0
                 with open(f"static/userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.tsv", "w", encoding="utf-8", newline="") as f:
                     writer = csv.writer(f, delimiter="\t", quoting=csv.QUOTE_NONE)
-                    writer.writerow(["S No", "Tracker Name", "Tracker Description", "Tracker Type", "Tracker Unit", "Log Time", "Log Note", "Log Value"])
+                    writer.writerow(["S No", "Tracker ID", "Tracker Name", "Tracker Description", "Tracker Type ID", "Tracker Type Name", "Tracker Unit", "Log ID", "Log Time", "Log Note", "Log Value"])
                     for tracker in trackers:
+                        t_id = tracker.t_id
                         t_name = tracker.t_name
                         t_name = t_name.replace("\t", "    ")
                         t_name = t_name.replace("\n", "    ")
@@ -134,6 +138,7 @@ def dashboard():
                         t_desc = t_desc.replace("\t", "    ")
                         t_desc = t_desc.replace("\n", "    ")
                         t_desc = t_desc.replace("\r", "")
+                        t_type = tracker.t_type
                         tt_name = tracker.t_type_name.tt_name
                         tt_name = tt_name.replace("\t", "    ")
                         tt_name = tt_name.replace("\n", "    ")
@@ -147,6 +152,7 @@ def dashboard():
                             tu_name = None
                         t_logs = tracker.t_logs
                         for log in t_logs:
+                            tl_id = log.tl_id
                             tl_time = log.tl_time
                             tl_note = log.tl_note
                             tl_note = tl_note.replace("\t", "    ")
@@ -156,7 +162,7 @@ def dashboard():
                             for tl_val in tl_vals:
                                 tv_val = tl_val.tv_val
                                 count += 1
-                                writer.writerow([count, t_name, t_desc, tt_name, tu_name, tl_time, tl_note, tv_val])
+                                writer.writerow([count, t_id, t_name, t_desc, t_type, tt_name, tu_name, tl_id, tl_time, tl_note, tv_val])
 
                 return redirect(url_for("static", filename=f"userdata/dashboard/logs/{current_user.id}/quantified_self_app_logs_{now_str}.tsv"))
 
