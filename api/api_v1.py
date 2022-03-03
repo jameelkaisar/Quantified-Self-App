@@ -21,16 +21,24 @@ from datetime import datetime
 
 class TestAPI(Resource):
     def get(self):
-        return {"message": "API is working"}, 200
+        try:
+            return {"message": "API is working"}, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 class CheckTokenAPI(Resource):
     def get(self, token):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
+        try:
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
 
-        return {"message": "Valid Token"}, 200
+            return {"message": "Valid Token"}, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 get_tracker_types_fields = {
@@ -41,12 +49,16 @@ get_tracker_types_fields = {
 class GetTrackerTypesAPI(Resource):
     @marshal_with(get_tracker_types_fields)
     def get(self, token):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
+        try:
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
 
-        types = TrackerTypes.query.all()
-        return types, 200
+            types = TrackerTypes.query.all()
+            return types, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 class TrackerOptionsField(fields.Raw):
@@ -67,13 +79,17 @@ get_trackers_fields = {
 class GetTrackersAPI(Resource):
     @marshal_with(get_trackers_fields)
     def get(self, token):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
-        user_id = token.api_user
+        try:
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
+            user_id = token.api_user
 
-        trackers = TrackerModel.query.filter(TrackerModel.t_user == user_id).all()
-        return trackers, 200
+            trackers = TrackerModel.query.filter(TrackerModel.t_user == user_id).all()
+            return trackers, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 class LogValuesField(fields.Raw):
@@ -127,19 +143,23 @@ get_logs_fields = {
 class GetLogsAPI(Resource):
     @marshal_with(get_logs_fields)
     def get(self, token, tid):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
-        user_id = token.api_user
+        try:
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
+            user_id = token.api_user
 
-        if not (tid.isdigit()):
-            abort(400, message="Invalid Tracker ID")
-        tid = int(tid)
+            if not (tid.isdigit()):
+                abort(400, message="Invalid Tracker ID")
+            tid = int(tid)
 
-        tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
-        if not tracker:
-            abort(400, message="Invalid Tracker ID")
-        return tracker.t_logs, 200
+            tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
+            if not tracker:
+                abort(400, message="Invalid Tracker ID")
+            return tracker.t_logs, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 add_tracker_parser = reqparse.RequestParser()
@@ -151,76 +171,80 @@ add_tracker_parser.add_argument("tracker_options", type=str, action="append")
 
 class AddTrackerAPI(Resource):
     def post(self, token):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
-        user_id = token.api_user
+        try:
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
+            user_id = token.api_user
 
-        args = add_tracker_parser.parse_args()
-        t_name = args.get("tracker_name", "")
-        t_desc = args.get("tracker_description", "")
-        t_type = args.get("tracker_type_id", "")
+            args = add_tracker_parser.parse_args()
+            t_name = args.get("tracker_name", "")
+            t_desc = args.get("tracker_description", "")
+            t_type = args.get("tracker_type_id", "")
 
-        if not (0 < len(t_name) <= 64):
-            abort(401, message="Invalid Tracker Name")
+            if not (0 < len(t_name) <= 64):
+                abort(401, message="Invalid Tracker Name")
 
-        if not (0 <= len(t_desc) <= 256):
-            abort(401, message="Invalid Tracker Description")
+            if not (0 <= len(t_desc) <= 256):
+                abort(401, message="Invalid Tracker Description")
 
-        tracker_types = TrackerTypes.query.all()
-        if not (t_type.isdigit() and int(t_type) in map(lambda x: x.tt_id, tracker_types)):
-            abort(401, message="Invalid Tracker Type ID")
-        t_type = int(t_type)
+            tracker_types = TrackerTypes.query.all()
+            if not (t_type.isdigit() and int(t_type) in map(lambda x: x.tt_id, tracker_types)):
+                abort(401, message="Invalid Tracker Type ID")
+            t_type = int(t_type)
 
-        tt_id = t_type
-        tt_name = list(filter(lambda x: x.tt_id == tt_id, tracker_types))[0].tt_name
+            tt_id = t_type
+            tt_name = list(filter(lambda x: x.tt_id == tt_id, tracker_types))[0].tt_name
 
-        if tt_name in ["Boolean"]:
-            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
-            db.session.add(tracker)
-            db.session.commit()
-            return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+            if tt_name in ["Boolean"]:
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
 
-        elif tt_name in ["Integer", "Decimal"]:
-            t_unit = args.get("tracker_unit", None)
-            if t_unit == None:
-                abort(401, message="\"tracker_unit\" is missing")
-            if not (0 < len(t_unit) <= 16):
-                abort(401, message="Invalid Tracker Unit")
+            elif tt_name in ["Integer", "Decimal"]:
+                t_unit = args.get("tracker_unit", None)
+                if t_unit == None:
+                    abort(401, message="\"tracker_unit\" is missing")
+                if not (0 < len(t_unit) <= 16):
+                    abort(401, message="Invalid Tracker Unit")
 
-            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
-            db.session.add(tracker)
-            db.session.commit()
-            unit = TrackerUnit(tu_name=t_unit, tu_tracker=tracker.t_id)
-            db.session.add(unit)
-            db.session.commit()
-            return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                unit = TrackerUnit(tu_name=t_unit, tu_tracker=tracker.t_id)
+                db.session.add(unit)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
 
-        elif tt_name in ["Duration"]:
-            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
-            db.session.add(tracker)
-            db.session.commit()
-            return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+            elif tt_name in ["Duration"]:
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
 
-        elif tt_name in ["Single Select", "Multi Select"]:
-            t_options = args.get("tracker_options", None)
-            if t_options == None:
-                abort(401, message="\"tracker_options\" is missing")
-            if not (len(t_options) > 0):
-                abort(401, message="Invalid Tracker Options")
-
-            for i in t_options:
-                if not (0 < len(i) <= 64):
+            elif tt_name in ["Single Select", "Multi Select"]:
+                t_options = args.get("tracker_options", None)
+                if t_options == None:
+                    abort(401, message="\"tracker_options\" is missing")
+                if not (len(t_options) > 0):
                     abort(401, message="Invalid Tracker Options")
 
-            tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
-            db.session.add(tracker)
-            db.session.commit()
-            for i in t_options:
-                option = TrackerOptions(to_name=i, to_tracker=tracker.t_id)
-                db.session.add(option)
-            db.session.commit()
-            return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+                for i in t_options:
+                    if not (0 < len(i) <= 64):
+                        abort(401, message="Invalid Tracker Options")
+
+                tracker = TrackerModel(t_name=t_name, t_desc=t_desc, t_type=tt_id, t_user=user_id)
+                db.session.add(tracker)
+                db.session.commit()
+                for i in t_options:
+                    option = TrackerOptions(to_name=i, to_tracker=tracker.t_id)
+                    db.session.add(option)
+                db.session.commit()
+                return {"message": "Tracker Added Successfully", "tracker_id": tracker.t_id}, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 add_log_parser = reqparse.RequestParser()
@@ -230,173 +254,185 @@ add_log_parser.add_argument("log_value", type=str, action="append", required=Tru
 
 class AddLogAPI(Resource):
     def post(self, token, tid):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
-        user_id = token.api_user
-
-        if not (tid.isdigit()):
-            abort(400, message="Invalid Tracker ID")
-        tid = int(tid)
-
-        tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
-        if not tracker:
-            abort(400, message="Invalid Tracker ID")
-
-        args = add_log_parser.parse_args()
-        tl_time = args.get("log_time", "")
-        tl_note = args.get("log_note", "")
-
-        if not (len(tl_time) == 16):
-            abort(401, message="Invalid Log Time")
         try:
-            tl_time = datetime.strptime(tl_time, "%Y-%m-%d %H:%M")
-        except ValueError:
-            abort(401, message="Invalid Log Time") 
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
+            user_id = token.api_user
 
-        if not (0 <= len(tl_note) <= 256):
-            abort(401, message="Invalid Log Note")
+            if not (tid.isdigit()):
+                abort(400, message="Invalid Tracker ID")
+            tid = int(tid)
 
-        tt_name = tracker.t_type_name.tt_name
+            tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
+            if not tracker:
+                abort(400, message="Invalid Tracker ID")
 
-        if tt_name in ["Boolean"]:
-            tl_val = args.get("log_value", None)
-            if tl_val == None:
-                abort(401, message="Invalid Log Value")
+            args = add_log_parser.parse_args()
+            tl_time = args.get("log_time", "")
+            tl_note = args.get("log_note", "")
+
+            if not (len(tl_time) == 16):
+                abort(401, message="Invalid Log Time")
             try:
-                tl_val = tl_val[0]
-            except:
-                abort(401, message="Invalid Log Value")
-            if tl_val == "Yes":
-                tl_val = 1
-            elif tl_val == "No":
-                tl_val = 0
-            else:
-                abort(401, message="Invalid Log Value")
-
-            tl_vals = [tl_val]
-
-        elif tt_name in ["Integer"]:
-            tl_val = args.get("log_value", None)
-            if tl_val == None:
-                abort(401, message="Invalid Log Value")
-            try:
-                tl_val = tl_val[0]
-                tl_val = int(float(tl_val))
+                tl_time = datetime.strptime(tl_time, "%Y-%m-%d %H:%M")
             except ValueError:
-                abort(401, message="Invalid Log Value")
+                abort(401, message="Invalid Log Time") 
 
-            tl_vals = [tl_val]
+            if not (0 <= len(tl_note) <= 256):
+                abort(401, message="Invalid Log Note")
 
-        elif tt_name in ["Decimal"]:
-            tl_val = args.get("log_value", None)
-            if tl_val == None:
-                abort(401, message="Invalid Log Value")
-            try:
-                tl_val = tl_val[0]
-                tl_val = round(float(tl_val), 2)
-            except ValueError:
-                abort(401, message="Invalid Log Value")
+            tt_name = tracker.t_type_name.tt_name
 
-            tl_vals = [tl_val]
+            if tt_name in ["Boolean"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                except:
+                    abort(401, message="Invalid Log Value")
+                if tl_val == "Yes":
+                    tl_val = 1
+                elif tl_val == "No":
+                    tl_val = 0
+                else:
+                    abort(401, message="Invalid Log Value")
 
-        elif tt_name in ["Duration"]:
-            tl_val = args.get("log_value", None)
-            if tl_val == None:
-                abort(401, message="Invalid Log Value")
-            try:
-                tl_val = tl_val[0]
-            except:
-                abort(401, message="Invalid Log Value")
-            if not (tl_val.isdigit() and 0 <= int(tl_val) <= (100*60*60 + 59*60 + 59)):
-                abort(401, message="Invalid Log Value")
-            tl_val = int(tl_val)
+                tl_vals = [tl_val]
 
-            tl_vals = [tl_val]
+            elif tt_name in ["Integer"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                    tl_val = int(float(tl_val))
+                except ValueError:
+                    abort(401, message="Invalid Log Value")
 
-        elif tt_name in ["Single Select"]:
-            tl_val = args.get("log_value", None)
-            if tl_val == None:
-                abort(401, message="Invalid Log Value")
-            try:
-                tl_val = tl_val[0]
-            except:
-                abort(401, message="Invalid Log Value")
-            to_ids = list(map(lambda x: x.to_id, tracker.t_options))
-            if not (tl_val.isdigit() and int(tl_val) in to_ids):
-                abort(401, message="Invalid Log Value")
-            tl_val = int(tl_val)
+                tl_vals = [tl_val]
 
-            tl_vals = [tl_val]
+            elif tt_name in ["Decimal"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                    tl_val = round(float(tl_val), 2)
+                except ValueError:
+                    abort(401, message="Invalid Log Value")
 
-        elif tt_name in ["Multi Select"]:
-            tl_val = args.get("log_value", None)
-            if tl_val == None:
-                abort(401, message="Invalid Log Value")
-            tl_vals = []
-            to_ids = list(map(lambda x: x.to_id, tracker.t_options))
-            for i in to_ids:
-                if str(i) in tl_val:
-                    tl_vals.append(i)
-            if len(tl_vals) == 0:
-                abort(401, message="Invalid Log Value")
+                tl_vals = [tl_val]
 
-        log = TrackerLogs(tl_time=tl_time, tl_note=tl_note, tl_tracker=tracker.t_id)
-        db.session.add(log)
-        db.session.commit()
-        for tl_val in tl_vals:
-            val = TrackerValues(tv_val=tl_val, tv_log=log.tl_id)
-            db.session.add(val)
-        db.session.commit()
-        return {"message": "Log Added Successfully", "log_id": log.tl_id}, 200
+            elif tt_name in ["Duration"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                except:
+                    abort(401, message="Invalid Log Value")
+                if not (tl_val.isdigit() and 0 <= int(tl_val) <= (100*60*60 + 59*60 + 59)):
+                    abort(401, message="Invalid Log Value")
+                tl_val = int(tl_val)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Single Select"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                except:
+                    abort(401, message="Invalid Log Value")
+                to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+                if not (tl_val.isdigit() and int(tl_val) in to_ids):
+                    abort(401, message="Invalid Log Value")
+                tl_val = int(tl_val)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Multi Select"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                tl_vals = []
+                to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+                for i in to_ids:
+                    if str(i) in tl_val:
+                        tl_vals.append(i)
+                if len(tl_vals) == 0:
+                    abort(401, message="Invalid Log Value")
+
+            log = TrackerLogs(tl_time=tl_time, tl_note=tl_note, tl_tracker=tracker.t_id)
+            db.session.add(log)
+            db.session.commit()
+            for tl_val in tl_vals:
+                val = TrackerValues(tv_val=tl_val, tv_log=log.tl_id)
+                db.session.add(val)
+            db.session.commit()
+            return {"message": "Log Added Successfully", "log_id": log.tl_id}, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 class DeleteTrackerAPI(Resource):
     def delete(self, token, tid):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
-        user_id = token.api_user
+        try:
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
+            user_id = token.api_user
 
-        if not (tid.isdigit()):
-            abort(400, message="Invalid Tracker ID")
-        tid = int(tid)
+            if not (tid.isdigit()):
+                abort(400, message="Invalid Tracker ID")
+            tid = int(tid)
 
-        tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
-        if not tracker:
-            abort(400, message="Invalid Tracker ID")
+            tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
+            if not tracker:
+                abort(400, message="Invalid Tracker ID")
 
-        db.session.delete(tracker)
-        db.session.commit()
-        return {"message": "Tracker Deleted Successfully"}, 200
+            db.session.delete(tracker)
+            db.session.commit()
+            return {"message": "Tracker Deleted Successfully"}, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 class DeleteLogAPI(Resource):
     def delete(self, token, tid, lid):
-        token = APIToken.query.filter(APIToken.api_token == token).first()
-        if not token:
-            abort(401, message="Invalid Token")
-        user_id = token.api_user
+        try:
+            token = APIToken.query.filter(APIToken.api_token == token).first()
+            if not token:
+                abort(401, message="Invalid Token")
+            user_id = token.api_user
 
-        if not (tid.isdigit()):
-            abort(400, message="Invalid Tracker ID")
-        tid = int(tid)
+            if not (tid.isdigit()):
+                abort(400, message="Invalid Tracker ID")
+            tid = int(tid)
 
-        tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
-        if not tracker:
-            abort(400, message="Invalid Tracker ID")
+            tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
+            if not tracker:
+                abort(400, message="Invalid Tracker ID")
 
-        if not (lid.isdigit()):
-            abort(400, message="Invalid Log ID")
-        lid = int(lid)
+            if not (lid.isdigit()):
+                abort(400, message="Invalid Log ID")
+            lid = int(lid)
 
-        log = TrackerLogs.query.filter(TrackerLogs.tl_id == lid, TrackerLogs.tl_tracker == tid).first()
-        if not log:
-            abort(400, message="Invalid Log ID")
+            log = TrackerLogs.query.filter(TrackerLogs.tl_id == lid, TrackerLogs.tl_tracker == tid).first()
+            if not log:
+                abort(400, message="Invalid Log ID")
 
-        db.session.delete(log)
-        db.session.commit()
-        return {"message": "Log Deleted Successfully"}, 200
+            db.session.delete(log)
+            db.session.commit()
+            return {"message": "Log Deleted Successfully"}, 200
+
+        except:
+            abort(500, message="Server Error")
 
 
 api = Api(app)
