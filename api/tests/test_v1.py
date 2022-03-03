@@ -280,3 +280,29 @@ token = "45801bbd4697e784878a6f06387583c918578ff827240569cb62be9b0ad9902a"
 
 # response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteTracker/11").json()
 # print(response)
+
+
+# deleteLog
+# =============
+# print("deleteLog")
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/xyz/deleteLog/xyz/xyz").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteLog/xyz/xyz").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteLog/100/xyz").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteLog/1/xyz").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteLog/1/1000").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteLog/1/1000").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteLog/1/24").json()
+# print(response)

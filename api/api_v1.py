@@ -396,6 +396,38 @@ class DeleteTrackerAPI(Resource):
             abort(401, message="Invalid Token")
 
 
+class DeleteLogAPI(Resource):
+    def delete(self, token, tid, lid):
+        tokens = APIToken.query.all()
+        tokens = dict(map(lambda x: (x.api_token, x.api_user), tokens))
+
+        if token in tokens.keys():
+            user_id = tokens[token]
+
+            if not (tid.isdigit()):
+                abort(400, message="Invalid Tracker ID")
+            tid = int(tid)
+
+            tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
+            if not tracker:
+                abort(400, message="Invalid Tracker ID")
+
+            if not (lid.isdigit()):
+                abort(400, message="Invalid Log ID")
+            lid = int(lid)
+
+            log = TrackerLogs.query.filter(TrackerLogs.tl_id == lid, TrackerLogs.tl_tracker == tid).first()
+            if not log:
+                abort(400, message="Invalid Log ID")
+
+            db.session.delete(log)
+            db.session.commit()
+            return {"message": "Log Deleted Successfully"}, 200
+
+        else:
+            abort(401, message="Invalid Token")
+
+
 api = Api(app)
 
 api.add_resource(TestAPI, "/api/v1/test")
@@ -409,3 +441,4 @@ api.add_resource(AddTrackerAPI, "/api/v1/<string:token>/addTracker")
 api.add_resource(AddLogAPI, "/api/v1/<string:token>/addLog/<string:tid>")
 
 api.add_resource(DeleteTrackerAPI, "/api/v1/<string:token>/deleteTracker/<string:tid>")
+api.add_resource(DeleteLogAPI, "/api/v1/<string:token>/deleteLog/<string:tid>/<string:lid>")
