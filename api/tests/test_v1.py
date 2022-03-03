@@ -51,20 +51,20 @@ token = "45801bbd4697e784878a6f06387583c918578ff827240569cb62be9b0ad9902a"
 # print(response)
 
 
-# getTrackerLogs
+# getLogs
 # ==============
-# print("getTrackerLogs")
+# print("getLogs")
 
-# response = get(f"{protocol}://{host}:{port}/api/{version}/xyz/getTrackerLogs/xyz").json()
+# response = get(f"{protocol}://{host}:{port}/api/{version}/xyz/getLogs/xyz").json()
 # print(response)
 
-# response = get(f"{protocol}://{host}:{port}/api/{version}/{token}/getTrackerLogs/xyz").json()
+# response = get(f"{protocol}://{host}:{port}/api/{version}/{token}/getLogs/xyz").json()
 # print(response)
 
-# response = get(f"{protocol}://{host}:{port}/api/{version}/{token}/getTrackerLogs/100").json()
+# response = get(f"{protocol}://{host}:{port}/api/{version}/{token}/getLogs/100").json()
 # print(response)
 
-# response = get(f"{protocol}://{host}:{port}/api/{version}/{token}/getTrackerLogs/1").json()
+# response = get(f"{protocol}://{host}:{port}/api/{version}/{token}/getLogs/1").json()
 # print(response)
 
 
