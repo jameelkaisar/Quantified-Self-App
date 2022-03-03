@@ -16,6 +16,8 @@ from flask_restful import reqparse
 from flask_restful import fields, marshal_with
 from flask_restful import abort
 
+from datetime import datetime
+
 
 class TestAPI(Resource):
     def get(self):
@@ -238,6 +240,138 @@ class AddTrackerAPI(Resource):
             abort(401, message="Invalid Token")
 
 
+add_log_parser = reqparse.RequestParser()
+add_log_parser.add_argument("log_time", type=str, required=True, help="\"log_time\" is missing")
+add_log_parser.add_argument("log_note", type=str, default="", help="\"log_note\" is missing")
+add_log_parser.add_argument("log_value", type=str, action="append", required=True, help="\"log_value\" is missing")
+
+class AddLogAPI(Resource):
+    def post(self, token, tid):
+        tokens = APIToken.query.all()
+        tokens = dict(map(lambda x: (x.api_token, x.api_user), tokens))
+
+        if token in tokens.keys():
+            user_id = tokens[token]
+
+            if not (tid.isdigit()):
+                abort(400, message="Invalid Tracker ID")
+            tid = int(tid)
+
+            tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
+            if not tracker:
+                abort(400, message="Invalid Tracker ID")
+
+            args = add_log_parser.parse_args()
+            tl_time = args.get("log_time", "")
+            tl_note = args.get("log_note", "")
+
+            if not (len(tl_time) == 16):
+                abort(401, message="Invalid Log Time")
+            try:
+                tl_time = datetime.strptime(tl_time, "%Y-%m-%d %H:%M")
+            except ValueError:
+                abort(401, message="Invalid Log Time") 
+
+            if not (0 <= len(tl_note) <= 256):
+                abort(401, message="Invalid Log Note")
+
+            tt_name = tracker.t_type_name.tt_name
+
+            if tt_name in ["Boolean"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                except:
+                    abort(401, message="Invalid Log Value")
+                if tl_val == "Yes":
+                    tl_val = 1
+                elif tl_val == "No":
+                    tl_val = 0
+                else:
+                    abort(401, message="Invalid Log Value")
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Integer"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                    tl_val = int(float(tl_val))
+                except ValueError:
+                    abort(401, message="Invalid Log Value")
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Decimal"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                    tl_val = round(float(tl_val), 2)
+                except ValueError:
+                    abort(401, message="Invalid Log Value")
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Duration"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                except:
+                    abort(401, message="Invalid Log Value")
+                if not (tl_val.isdigit() and 0 <= int(tl_val) <= (100*60*60 + 59*60 + 59)):
+                    abort(401, message="Invalid Log Value")
+                tl_val = int(tl_val)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Single Select"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                try:
+                    tl_val = tl_val[0]
+                except:
+                    abort(401, message="Invalid Log Value")
+                to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+                if not (tl_val.isdigit() and int(tl_val) in to_ids):
+                    abort(401, message="Invalid Log Value")
+                tl_val = int(tl_val)
+
+                tl_vals = [tl_val]
+
+            elif tt_name in ["Multi Select"]:
+                tl_val = args.get("log_value", None)
+                if tl_val == None:
+                    abort(401, message="Invalid Log Value")
+                tl_vals = []
+                to_ids = list(map(lambda x: x.to_id, tracker.t_options))
+                for i in to_ids:
+                    if str(i) in tl_val:
+                        tl_vals.append(i)
+                if len(tl_vals) == 0:
+                    abort(401, message="Invalid Log Value")
+
+            log = TrackerLogs(tl_time=tl_time, tl_note=tl_note, tl_tracker=tracker.t_id)
+            db.session.add(log)
+            db.session.commit()
+            for tl_val in tl_vals:
+                val = TrackerValues(tv_val=tl_val, tv_log=log.tl_id)
+                db.session.add(val)
+            db.session.commit()
+            return {"message": "Log Added Successfully", "log_id": log.tl_id}, 200
+
+        else:
+            abort(401, message="Invalid Token")
+
+
 api = Api(app)
 
 api.add_resource(TestAPI, "/api/v1/test")
@@ -248,3 +382,4 @@ api.add_resource(GetTrackersAPI, "/api/v1/<string:token>/getTrackers")
 api.add_resource(GetTrackerLogsAPI, "/api/v1/<string:token>/getTrackerLogs/<string:tid>")
 
 api.add_resource(AddTrackerAPI, "/api/v1/<string:token>/addTracker")
+api.add_resource(AddLogAPI, "/api/v1/<string:token>/addLog/<string:tid>")
