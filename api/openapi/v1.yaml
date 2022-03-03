@@ -1,0 +1,184 @@
+openapi: 3.0.0
+
+info:
+  title: Quantified Self API
+  description: Capstone Project for Modern Application Development I Course (IIT Madras)
+  contact:
+    name: Jameel Kaisar
+    email: jameelkaisarkhan@gmail.com
+  version: 1.0.0
+
+servers:
+  - url: '{protocol}://{host}:{port}/api/{version}'
+    variables:
+      protocol:
+        default: 'http'
+        enum:
+          - 'http'
+      host:
+        default: '127.0.0.1'
+        enum:
+          - '127.0.0.1'
+      port:
+        default: '8000'
+        enum:
+          - '8000'
+      version:
+        default: 'v1'
+        enum:
+          - 'v1'
+
+components:
+  securitySchemes:
+    APIToken:
+      type: apiKey
+      name: APIToken
+      in: header
+
+paths:
+  /test:
+    get:
+      summary: Tests if API is working
+      description: Tests if API is working
+      responses:
+        '200':
+          description: API is working
+        '500':
+          description: Server error
+  
+  /checkToken:
+    get:
+      summary: Test if token is valid
+      description: Test if token is valid
+      responses:
+        '200':
+          description: Token is valid
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
+
+  /getTrackerTypes:
+    get:
+      summary: Get types of trackers available
+      description: Get types of trackers available
+      responses:
+        '200':
+          description: Types of trackers available
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    tracker_type_id:
+                      type: integer
+                      example: 1
+                    tracker_type_name:
+                      type: string
+                      example: Boolean
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
+
+  /getTrackers:
+    get:
+      summary: Get all trackers
+      description: Get all trackers
+      responses:
+        '200':
+          description: All trackers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    tracker_id:
+                      type: integer
+                      example: 1
+                    tracker_name:
+                      type: string
+                      example: Mood
+                    tracker_description:
+                      type: string
+                      example: Some Description of Mood Tracker
+                    tracker_type_id:
+                      type: integer
+                      example: 5
+                    tracker_type_name:
+                      type: string
+                      example: Single Select
+                    tracker_unit:
+                      type: string
+                      example: null
+                    tracker_options:
+                      type: array
+                      items:
+                        properties:
+                          option_id:
+                            type: integer
+                            example: 1
+                          option_name:
+                            type: string
+                            example: Happy
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
+
+  /getLogs/{tracker_id}:
+    get:
+      summary: Get logs of a tracker
+      description: Get logs of a tracker
+      parameters:
+        - in: path
+          name: tracker_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Logs of a tracker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    log_id:
+                      type: integer
+                      example: 1
+                    log_time:
+                      type: string
+                      example: '2022-12-31 23:59'
+                    log_note:
+                      type: string
+                      example: Some Text About Log
+                    log_value:
+                      type: string
+                      example: null
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
+
+
