@@ -13,7 +13,7 @@ from database.database import db
 from flask import current_app as app
 from flask_restful import Resource, Api
 from flask_restful import reqparse
-from flask_restful import fields, marshal_with
+from flask_restful import fields, marshal
 
 from datetime import datetime
 
@@ -28,9 +28,17 @@ class TestAPI(Resource):
 
 
 class CheckTokenAPI(Resource):
-    def get(self, token):
+    def __init__(self):
+        self.check_token_parser = reqparse.RequestParser()
+        self.check_token_parser.add_argument("APIToken", location="headers", type=str, required=True)
+
+    def get(self):
+        args = self.check_token_parser.parse_args()
         try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
+            api_token = args.get("APIToken", None)
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
             if not token:
                 return {"message": "Invalid Token"}, 401
 
@@ -40,21 +48,28 @@ class CheckTokenAPI(Resource):
             return {"message": "Server Error"}, 500
 
 
-get_tracker_types_fields = {
-    "tracker_type_id": fields.Integer(attribute="tt_id"),
-    "tracker_type_name": fields.String(attribute="tt_name")
-}
-
 class GetTrackerTypesAPI(Resource):
-    @marshal_with(get_tracker_types_fields)
-    def get(self, token):
+    def __init__(self):
+        self.get_tracker_types_parser = reqparse.RequestParser()
+        self.get_tracker_types_parser.add_argument("APIToken", location="headers", type=str, required=True)
+
+        self.get_tracker_types_fields = {
+            "tracker_type_id": fields.Integer(attribute="tt_id"),
+            "tracker_type_name": fields.String(attribute="tt_name")
+        }
+
+    def get(self):
+        args = self.get_tracker_types_parser.parse_args()
         try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
+            api_token = args.get("APIToken", None)
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
             if not token:
                 return {"message": "Invalid Token"}, 401
 
             types = TrackerTypes.query.all()
-            return types, 200
+            return marshal(types, self.get_tracker_types_fields), 200
 
         except:
             return {"message": "Server Error"}, 500
@@ -65,27 +80,34 @@ class TrackerOptionsField(fields.Raw):
         options = list(map(lambda x: {"option_id": x.to_id, "option_name": x.to_name}, value))
         return options
 
-get_trackers_fields = {
-    "tracker_id": fields.Integer(attribute="t_id"),
-    "tracker_name": fields.String(attribute="t_name"),
-    "tracker_description": fields.String(attribute="t_desc"),
-    "tracker_type_id": fields.Integer(attribute="t_type"),
-    "tracker_type_name": fields.String(attribute="t_type_name.tt_name"),
-    "tracker_unit": fields.String(attribute="t_unit.tu_name", default=None),
-    "tracker_options": TrackerOptionsField(attribute="t_options")
-}
-
 class GetTrackersAPI(Resource):
-    @marshal_with(get_trackers_fields)
-    def get(self, token):
+    def __init__(self):
+        self.get_trackers_parser = reqparse.RequestParser()
+        self.get_trackers_parser.add_argument("APIToken", location="headers", type=str, required=True)
+
+        self.get_trackers_fields = {
+            "tracker_id": fields.Integer(attribute="t_id"),
+            "tracker_name": fields.String(attribute="t_name"),
+            "tracker_description": fields.String(attribute="t_desc"),
+            "tracker_type_id": fields.Integer(attribute="t_type"),
+            "tracker_type_name": fields.String(attribute="t_type_name.tt_name"),
+            "tracker_unit": fields.String(attribute="t_unit.tu_name", default=None),
+            "tracker_options": TrackerOptionsField(attribute="t_options")
+        }
+
+    def get(self):
+        args = self.get_trackers_parser.parse_args()
         try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
+            api_token = args.get("APIToken", None)
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
             if not token:
                 return {"message": "Invalid Token"}, 401
             user_id = token.api_user
 
             trackers = TrackerModel.query.filter(TrackerModel.t_user == user_id).all()
-            return trackers, 200
+            return marshal(trackers, self.get_trackers_fields), 200
 
         except:
             return {"message": "Server Error"}, 500
@@ -132,18 +154,25 @@ class LogValuesField(fields.Raw):
                     })
             return selected
 
-get_logs_fields = {
-    "log_id": fields.Integer(attribute="tl_id"),
-    "log_time": fields.String(attribute=lambda x: x.tl_time.strftime("%Y-%m-%d %H:%M")),
-    "log_note": fields.String(attribute="tl_note"),
-    "log_value": LogValuesField(attribute=lambda x: (x.tl_tracker, x.tl_vals))
-}
-
 class GetLogsAPI(Resource):
-    @marshal_with(get_logs_fields)
-    def get(self, token, tid):
+    def __init__(self):
+        self.get_logs_parser = reqparse.RequestParser()
+        self.get_logs_parser.add_argument("APIToken", location="headers", type=str, required=True)
+
+        self.get_logs_fields = {
+            "log_id": fields.Integer(attribute="tl_id"),
+            "log_time": fields.String(attribute=lambda x: x.tl_time.strftime("%Y-%m-%d %H:%M")),
+            "log_note": fields.String(attribute="tl_note"),
+            "log_value": LogValuesField(attribute=lambda x: (x.tl_tracker, x.tl_vals))
+        }
+
+    def get(self, tid):
+        args = self.get_logs_parser.parse_args()
         try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
+            api_token = args.get("APIToken", None)
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
             if not token:
                 return {"message": "Invalid Token"}, 401
             user_id = token.api_user
@@ -155,31 +184,36 @@ class GetLogsAPI(Resource):
             tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
             if not tracker:
                 return {"message": "Invalid Tracker ID"}, 400
-            return tracker.t_logs, 200
+            return marshal(tracker.t_logs, self.get_logs_fields), 200
 
         except:
             return {"message": "Server Error"}, 500
 
 
-add_tracker_parser = reqparse.RequestParser()
-add_tracker_parser.add_argument("tracker_name", type=str, required=True, help="\"tracker_name\" is missing")
-add_tracker_parser.add_argument("tracker_description", type=str, required=True, help="\"tracker_description\" is missing")
-add_tracker_parser.add_argument("tracker_type_id", type=str, required=True, help="\"tracker_type_id\" is missing")
-add_tracker_parser.add_argument("tracker_unit", type=str)
-add_tracker_parser.add_argument("tracker_options", type=str, action="append")
-
 class AddTrackerAPI(Resource):
-    def post(self, token):
-        try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
-            if not token:
-                return {"message": "Invalid Token"}, 401
-            user_id = token.api_user
+    def __init__(self):
+        self.add_tracker_parser = reqparse.RequestParser()
+        self.add_tracker_parser.add_argument("APIToken", location="headers", type=str, required=True)
+        self.add_tracker_parser.add_argument("tracker_name", type=str, required=True, help="\"tracker_name\" is missing")
+        self.add_tracker_parser.add_argument("tracker_description", type=str, default="", help="\"tracker_description\" is missing")
+        self.add_tracker_parser.add_argument("tracker_type_id", type=str, required=True, help="\"tracker_type_id\" is missing")
+        self.add_tracker_parser.add_argument("tracker_unit", type=str)
+        self.add_tracker_parser.add_argument("tracker_options", type=str, action="append")
 
-            args = add_tracker_parser.parse_args()
+    def post(self):
+        args = self.add_tracker_parser.parse_args()
+        try:
+            api_token = args.get("APIToken", None)
             t_name = args.get("tracker_name", "")
             t_desc = args.get("tracker_description", "")
             t_type = args.get("tracker_type_id", "")
+
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
+            if not token:
+                return {"message": "Invalid Token"}, 401
+            user_id = token.api_user
 
             if not (0 < len(t_name) <= 64):
                 return {"message": "Invalid Tracker Name"}, 400
@@ -246,15 +280,24 @@ class AddTrackerAPI(Resource):
             return {"message": "Server Error"}, 500
 
 
-add_log_parser = reqparse.RequestParser()
-add_log_parser.add_argument("log_time", type=str, required=True, help="\"log_time\" is missing")
-add_log_parser.add_argument("log_note", type=str, default="", help="\"log_note\" is missing")
-add_log_parser.add_argument("log_value", type=str, action="append", required=True, help="\"log_value\" is missing")
-
 class AddLogAPI(Resource):
-    def post(self, token, tid):
+    def __init__(self):
+        self.add_log_parser = reqparse.RequestParser()
+        self.add_log_parser.add_argument("APIToken", location="headers", type=str, required=True)
+        self.add_log_parser.add_argument("log_time", type=str, required=True, help="\"log_time\" is missing")
+        self.add_log_parser.add_argument("log_note", type=str, default="", help="\"log_note\" is missing")
+        self.add_log_parser.add_argument("log_value", type=str, action="append", required=True, help="\"log_value\" is missing")
+
+    def post(self, tid):
+        args = self.add_log_parser.parse_args()
         try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
+            api_token = args.get("APIToken", None)
+            tl_time = args.get("log_time", "")
+            tl_note = args.get("log_note", "")
+
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
             if not token:
                 return {"message": "Invalid Token"}, 401
             user_id = token.api_user
@@ -266,10 +309,6 @@ class AddLogAPI(Resource):
             tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
             if not tracker:
                 return {"message": "Invalid Tracker ID"}, 400
-
-            args = add_log_parser.parse_args()
-            tl_time = args.get("log_time", "")
-            tl_note = args.get("log_note", "")
 
             if not (len(tl_time) == 16):
                 return {"message": "Invalid Log Time"}, 400
@@ -379,9 +418,17 @@ class AddLogAPI(Resource):
 
 
 class DeleteTrackerAPI(Resource):
-    def delete(self, token, tid):
+    def __init__(self):
+        self.delete_tracker_parser = reqparse.RequestParser()
+        self.delete_tracker_parser.add_argument("APIToken", location="headers", type=str, required=True)
+
+    def delete(self, tid):
+        args = self.delete_tracker_parser.parse_args()
         try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
+            api_token = args.get("APIToken", None)
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
             if not token:
                 return {"message": "Invalid Token"}, 401
             user_id = token.api_user
@@ -403,9 +450,17 @@ class DeleteTrackerAPI(Resource):
 
 
 class DeleteLogAPI(Resource):
-    def delete(self, token, tid, lid):
+    def __init__(self):
+        self.delete_log_parser = reqparse.RequestParser()
+        self.delete_log_parser.add_argument("APIToken", location="headers", type=str, required=True)
+
+    def delete(self, tid, lid):
+        args = self.delete_log_parser.parse_args()
         try:
-            token = APIToken.query.filter(APIToken.api_token == token).first()
+            api_token = args.get("APIToken", None)
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
             if not token:
                 return {"message": "Invalid Token"}, 401
             user_id = token.api_user
@@ -437,14 +492,14 @@ class DeleteLogAPI(Resource):
 api = Api(app)
 
 api.add_resource(TestAPI, "/api/v1/test")
-api.add_resource(CheckTokenAPI, "/api/v1/<string:token>/checkToken")
+api.add_resource(CheckTokenAPI, "/api/v1/checkToken")
 
-api.add_resource(GetTrackerTypesAPI, "/api/v1/<string:token>/getTrackerTypes")
-api.add_resource(GetTrackersAPI, "/api/v1/<string:token>/getTrackers")
-api.add_resource(GetLogsAPI, "/api/v1/<string:token>/getLogs/<string:tid>")
+api.add_resource(GetTrackerTypesAPI, "/api/v1/getTrackerTypes")
+api.add_resource(GetTrackersAPI, "/api/v1/getTrackers")
+api.add_resource(GetLogsAPI, "/api/v1/getLogs/<string:tid>")
 
-api.add_resource(AddTrackerAPI, "/api/v1/<string:token>/addTracker")
-api.add_resource(AddLogAPI, "/api/v1/<string:token>/addLog/<string:tid>")
+api.add_resource(AddTrackerAPI, "/api/v1/addTracker")
+api.add_resource(AddLogAPI, "/api/v1/addLog/<string:tid>")
 
-api.add_resource(DeleteTrackerAPI, "/api/v1/<string:token>/deleteTracker/<string:tid>")
-api.add_resource(DeleteLogAPI, "/api/v1/<string:token>/deleteLog/<string:tid>/<string:lid>")
+api.add_resource(DeleteTrackerAPI, "/api/v1/deleteTracker/<string:tid>")
+api.add_resource(DeleteLogAPI, "/api/v1/deleteLog/<string:tid>/<string:lid>")
