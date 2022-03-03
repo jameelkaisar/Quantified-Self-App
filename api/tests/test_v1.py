@@ -1,5 +1,6 @@
 from requests import get
 from requests import post
+from requests import delete
 
 
 protocol = "http"
@@ -261,4 +262,21 @@ token = "45801bbd4697e784878a6f06387583c918578ff827240569cb62be9b0ad9902a"
 # print(response)
 
 # response = post(f"{protocol}://{host}:{port}/api/{version}/{token}/addLog/6", data={"log_time": "2022-03-03 10:20", "log_note": "Sample Log Note", "log_value": ["1", 4, "5", 6]}).json()
+# print(response)
+
+
+# deleteTracker
+# =============
+# print("deleteTracker")
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/xyz/deleteTracker/xyz").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteTracker/xyz").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteTracker/100").json()
+# print(response)
+
+# response = delete(f"{protocol}://{host}:{port}/api/{version}/{token}/deleteTracker/11").json()
 # print(response)
