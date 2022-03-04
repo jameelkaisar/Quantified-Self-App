@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+        <title>API v1 - Quantified Self</title>
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css')}}">
+        <script src="{{ url_for('static', filename='js/fontawesome.all.min.js')}}"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='api/swagger-ui.css')}}">
+    </head>
+    <body class="bg-light">
+        {% include 'components/messages.html' %}
+        {% include 'components/navbar.html' %}
+
+        <div class="container">
+            <div id="openapi"></div>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/messages.js')}}"></script>
+        <script src="{{ url_for('static', filename='api/swagger-ui-bundle.js')}}"></script>
+        <script>
+            window.onload = function() {
+                const ui = SwaggerUIBundle({
+                    url: "{{ url_for('static', filename='api/api_v1.yaml')}}",
+                    dom_id: "#openapi",
+                });
+                window.ui = ui;
+            };
+        </script>
+    </body>
+</html>

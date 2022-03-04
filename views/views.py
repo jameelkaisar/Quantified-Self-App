@@ -44,6 +44,11 @@ def home():
         return redirect("/login")
 
 
+@app.route("/api/v1", methods=["GET"])
+def api_v1():
+    return render_template("api/api_v1.html", user=current_user)
+
+
 @app.route("/api", methods=["GET", "POST"])
 @login_required
 def api():

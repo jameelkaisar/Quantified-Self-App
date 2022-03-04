@@ -35,6 +35,20 @@
             </div>
         </div>
 
+        <div class="container">
+            <div class="row equal d-flex justify-content-center mt-4">
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 d-flex justify-content-center p-4">
+                    <div class="card flex-fill">
+                        <div class="card-header">Quantified Self API v1</div>
+                        <div class="card-body d-flex justify-content-center align-items-end">
+                            <a href="/api/v1" class="btn btn-primary mx-1">View API</a>
+                            <a href="{{ url_for('static', filename='api/api_v1.yaml')}}" class="btn btn-primary mx-1" download>Download YAML</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
         <script src="{{ url_for('static', filename='js/api.js')}}"></script>
         <script src="{{ url_for('static', filename='js/messages.js')}}"></script>

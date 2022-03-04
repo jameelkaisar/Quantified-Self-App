@@ -2,7 +2,9 @@ openapi: 3.0.0
 
 info:
   title: Quantified Self API
-  description: Capstone Project for Modern Application Development I Course (IIT Madras)
+  description: |
+    #### Capstone Project for Modern Application Development I Course (IIT Madras)
+    [GitHub Link](https://github.com/JameelKaisar/Quantified-Self-App)
   contact:
     name: Jameel Kaisar
     email: jameelkaisarkhan@gmail.com
@@ -19,6 +21,7 @@ servers:
         default: '127.0.0.1'
         enum:
           - '127.0.0.1'
+          - 'localhost'
       port:
         default: '8000'
         enum:
@@ -40,6 +43,8 @@ paths:
     get:
       summary: Tests if API is working
       description: Tests if API is working
+      tags:
+        - Test API
       responses:
         '200':
           description: API is working
@@ -50,6 +55,8 @@ paths:
     get:
       summary: Test if token is valid
       description: Test if token is valid
+      tags:
+        - Authorization
       responses:
         '200':
           description: Token is valid
@@ -66,6 +73,8 @@ paths:
     get:
       summary: Get types of trackers available
       description: Get types of trackers available
+      tags:
+        - GET Methods
       responses:
         '200':
           description: Types of trackers available
@@ -94,6 +103,8 @@ paths:
     get:
       summary: Get all trackers
       description: Get all trackers
+      tags:
+        - GET Methods
       responses:
         '200':
           description: All trackers
@@ -144,6 +155,8 @@ paths:
     get:
       summary: Get logs of a tracker
       description: Get logs of a tracker
+      tags:
+        - GET Methods
       parameters:
         - in: path
           name: tracker_id
