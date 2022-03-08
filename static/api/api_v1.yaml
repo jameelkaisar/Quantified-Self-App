@@ -56,7 +56,7 @@ paths:
       summary: Test if token is valid
       description: Test if token is valid
       tags:
-        - Authorization
+        - Check Authorization
       responses:
         '200':
           description: Token is valid
@@ -194,4 +194,156 @@ paths:
       security:
         - APIToken: []
 
+  /addTracker:
+    post:
+      summary: Add a tracker
+      description: Add a tracker
+      tags:
+        - POST Methods
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tracker_name:
+                  type: string
+                  example: Mood
+                tracker_description:
+                  type: string
+                  example: My Mood Tracker
+                tracker_type_id:
+                  type: integer
+                  example: 5
+                tracker_options:
+                  type: array
+                  example: [Happy, Sad, Angry]
+      responses:
+        '200':
+          description: Tracker Added Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Tracker Added Successfully
+                  tracker_id:
+                    type: integer
+                    example: 1
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
 
+  /addLog/{tracker_id}:
+    post:
+      summary: Add a tracker log
+      description: Add a tracker log
+      tags:
+        - POST Methods
+      parameters:
+        - in: path
+          name: tracker_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                log_time:
+                  type: string
+                  example: '2022-03-04 02:05'
+                log_note:
+                  type: string
+                  example: Sample Log Note
+                log_value:
+                  type: array
+                  example: [2]
+      responses:
+        '200':
+          description: Log Added Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Log Added Successfully
+                  log_id:
+                    type: integer
+                    example: 1
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
+
+  /deleteTracker/{tracker_id}:
+    delete:
+      summary: Delete a tracker
+      description: Delete a tracker
+      tags:
+        - DELETE Methods
+      parameters:
+        - in: path
+          name: tracker_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Tracker Deleted Successfully
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
+
+  /deleteLog/{tracker_id}/{log_id}:
+    delete:
+      summary: Delete a tracker log
+      description: Delete a tracker log
+      tags:
+        - DELETE Methods
+      parameters:
+        - in: path
+          name: tracker_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - in: path
+          name: log_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Log Deleted Successfully
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
