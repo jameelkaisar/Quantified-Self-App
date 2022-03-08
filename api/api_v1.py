@@ -11,11 +11,20 @@ from models.models import APIToken
 from database.database import db
 
 from flask import current_app as app
+from flask import url_for
 from flask_restful import Resource, Api
 from flask_restful import reqparse
 from flask_restful import fields, marshal
 
+import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import numpy as np
+
 from datetime import datetime
+from pathlib import Path
 
 
 class TestAPI(Resource):
@@ -185,6 +194,148 @@ class GetLogsAPI(Resource):
             if not tracker:
                 return {"message": "Invalid Tracker ID"}, 400
             return marshal(tracker.t_logs, self.get_logs_fields), 200
+
+        except:
+            return {"message": "Server Error"}, 500
+
+
+class GetStatsAPI(Resource):
+    def __init__(self):
+        self.get_stats_parser = reqparse.RequestParser()
+        self.get_stats_parser.add_argument("APIToken", location="headers", type=str, required=True)
+
+    def get(self, tid):
+        args = self.get_stats_parser.parse_args()
+        try:
+            api_token = args.get("APIToken", None)
+            if api_token == None:
+                return {"message": "\"APIToken\" is missing"}, 401
+            token = APIToken.query.filter(APIToken.api_token == api_token).first()
+            if not token:
+                return {"message": "Invalid Token"}, 401
+            user_id = token.api_user
+
+            if not (tid.isdigit()):
+                return {"message": "Invalid Tracker ID"}, 400
+            tid = int(tid)
+
+            tracker = TrackerModel.query.filter(TrackerModel.t_id == tid, TrackerModel.t_user == user_id).first()
+            if not tracker:
+                return {"message": "Invalid Tracker ID"}, 400
+
+            Path(f"static/userdata/dashboard/graphs/{user_id}/").mkdir(parents=True, exist_ok=True)
+
+            try:
+                if tracker.t_type_name.tt_name in ["Boolean"]:
+                    logs = tracker.t_logs
+
+                    if len(logs) < 1:
+                        plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                    else:
+                        x = ["Yes", "No"]
+                        y = [sum(map(lambda x: int(x.tl_vals[0].tv_val), logs))]
+                        y.append(len(logs) - y[0])
+
+                        patches, texts, _ = plt.pie(y, autopct='%1.0f%%')
+                        plt.legend(patches, x, loc='upper right', bbox_to_anchor=(1.2, 1.))
+
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                elif tracker.t_type_name.tt_name in ["Integer", "Decimal"]:
+                    logs = tracker.t_logs
+
+                    if len(logs) < 3:
+                        plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                    else:
+                        x, y = zip(*map(lambda x: (x.tl_time, int(x.tl_vals[0].tv_val)), logs))
+
+                        x_0 = int(x[0].strftime('%Y%m%d%H%M%S%f'))
+                        xint = [(int(d.strftime('%Y%m%d%H%M%S%f')) - x_0) for d in x]
+
+                        z = np.polyfit(xint, y, 1)
+                        p = np.poly1d(z)
+
+                        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
+                        plt.plot(x, y, 'go-', label='Data', linewidth=2, markersize=10)
+                        plt.plot(x, p(xint), 'b--', label='Fit')
+                        plt.legend(loc='best')
+                        plt.gcf().autofmt_xdate()
+
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                elif tracker.t_type_name.tt_name in ["Duration"]:
+                    logs = tracker.t_logs
+
+                    if len(logs) < 3:
+                        plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                    else:
+                        x, y = zip(*map(lambda x: (x.tl_time, int(x.tl_vals[0].tv_val)), logs))
+
+                        y = list(map(lambda t: round(t//60 + (t%60)/60, 2), y))
+
+                        x_0 = int(x[0].strftime('%Y%m%d%H%M%S%f'))
+                        xint = [(int(d.strftime('%Y%m%d%H%M%S%f')) - x_0) for d in x]
+
+                        z = np.polyfit(xint, y, 1)
+                        p = np.poly1d(z)
+
+                        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
+                        plt.plot(x, y, 'go-', label='Data', linewidth=2, markersize=10)
+                        plt.plot(x, p(xint), 'b--', label='Fit')
+                        plt.legend(loc='best')
+                        plt.gcf().autofmt_xdate()
+
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                elif tracker.t_type_name.tt_name in ["Single Select", "Multi Select"]:
+                    options = {x.to_id: x.to_name for x in tracker.t_options}
+                    logs = tracker.t_logs
+
+                    if len(logs) < 1:
+                        plt.annotate('Add more logs to see the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                    else:
+                        d = {}
+                        for log in logs:
+                            for val in log.tl_vals:
+                                if options[int(val.tv_val)] not in d:
+                                    d[options[int(val.tv_val)]] = 0
+                                d[options[int(val.tv_val)]] += 1
+
+                        x, y = zip(*map(lambda x: (x, d[x]), d.keys()))
+
+                        patches, texts, _ = plt.pie(y, autopct='%1.0f%%')
+                        plt.legend(patches, x, loc='upper right', bbox_to_anchor=(1.2, 1.))
+
+                        plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                        plt.clf()
+
+                else:
+                    plt.annotate('Graph not available for this type.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                    plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                    plt.clf()
+            except:
+                plt.annotate('Error while plotting the graph.', (0.5, 0.5), xycoords='axes fraction', va='center', ha='center')
+                plt.savefig(f"static/userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+                plt.clf()
+
+            stats_url = url_for("static", filename=f"userdata/dashboard/graphs/{user_id}/{tracker.t_id}_main.png")
+
+            return {"tracker_stats_url": stats_url}, 200
 
         except:
             return {"message": "Server Error"}, 500
@@ -497,6 +648,7 @@ api.add_resource(CheckTokenAPI, "/api/v1/checkToken")
 api.add_resource(GetTrackerTypesAPI, "/api/v1/getTrackerTypes")
 api.add_resource(GetTrackersAPI, "/api/v1/getTrackers")
 api.add_resource(GetLogsAPI, "/api/v1/getLogs/<string:tid>")
+api.add_resource(GetStatsAPI, "/api/v1/getStats/<string:tid>")
 
 api.add_resource(AddTrackerAPI, "/api/v1/addTracker")
 api.add_resource(AddLogAPI, "/api/v1/addLog/<string:tid>")

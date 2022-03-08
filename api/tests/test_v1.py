@@ -80,6 +80,41 @@ token = "45801bbd4697e784878a6f06387583c918578ff827240569cb62be9b0ad9902a"
 # print(response)
 
 
+# getStats
+# ========
+# print("getStats")
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/xyz").json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/xyz", headers={"APIToken": "xyz"}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/xyz", headers={"APIToken": token}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/100", headers={"APIToken": token}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/1", headers={"APIToken": token}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/2", headers={"APIToken": token}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/3", headers={"APIToken": token}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/4", headers={"APIToken": token}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/5", headers={"APIToken": token}).json()
+# print(response)
+
+# response = get(f"{protocol}://{host}:{port}/api/{version}/getStats/6", headers={"APIToken": token}).json()
+# print(response)
+
+
 # addTracker
 # ==========
 # print("addTracker")

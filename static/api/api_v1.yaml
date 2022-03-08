@@ -194,6 +194,39 @@ paths:
       security:
         - APIToken: []
 
+  /getStats/{tracker_id}:
+    get:
+      summary: Get stats of a tracker
+      description: Get stats of a tracker
+      tags:
+        - GET Methods
+      parameters:
+        - in: path
+          name: tracker_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Stats of a tracker
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tracker_stats_url:
+                    type: string
+                    example: '/static/userdata/dashboard/graphs/1/1_main.png'
+        '400':
+          description: Missing/invalid parameters
+        '401':
+          description: Token is invalid
+        '500':
+          description: Server error
+      security:
+        - APIToken: []
+
   /addTracker:
     post:
       summary: Add a tracker
