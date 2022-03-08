@@ -113,35 +113,80 @@ paths:
               schema:
                 type: array
                 items:
-                  properties:
-                    tracker_id:
-                      type: integer
-                      example: 1
-                    tracker_name:
-                      type: string
-                      example: Mood
-                    tracker_description:
-                      type: string
-                      example: Some Description of Mood Tracker
-                    tracker_type_id:
-                      type: integer
-                      example: 5
-                    tracker_type_name:
-                      type: string
-                      example: Single Select
-                    tracker_unit:
-                      type: string
-                      example: null
-                    tracker_options:
-                      type: array
-                      items:
-                        properties:
-                          option_id:
-                            type: integer
-                            example: 1
-                          option_name:
-                            type: string
-                            example: Happy
+                  oneOf:
+                  - properties:
+                      tracker_id:
+                        type: integer
+                        example: 1
+                      tracker_name:
+                        type: string
+                        example: Washing Clothes
+                      tracker_description:
+                        type: string
+                        example: Description of Washing Clothes Tracker
+                      tracker_type_id:
+                        type: integer
+                        example: 1
+                      tracker_type_name:
+                        type: string
+                        example: Boolean
+                      tracker_unit:
+                        type: string
+                        example: null
+                      tracker_options:
+                        type: array
+                        example: []
+                  - properties:
+                      tracker_id:
+                        type: integer
+                        example: 2
+                      tracker_name:
+                        type: string
+                        example: Running
+                      tracker_description:
+                        type: string
+                        example: Description of Running Tracker
+                      tracker_type_id:
+                        type: integer
+                        example: 2
+                      tracker_type_name:
+                        type: string
+                        example: Integer
+                      tracker_unit:
+                        type: string
+                        example: m
+                      tracker_options:
+                        type: array
+                        example: []
+                  - properties:
+                      tracker_id:
+                        type: integer
+                        example: 3
+                      tracker_name:
+                        type: string
+                        example: Mood
+                      tracker_description:
+                        type: string
+                        example: Description of Mood Tracker
+                      tracker_type_id:
+                        type: integer
+                        example: 5
+                      tracker_type_name:
+                        type: string
+                        example: Single Select
+                      tracker_unit:
+                        type: string
+                        example: null
+                      tracker_options:
+                        type: array
+                        items:
+                          properties:
+                            option_id:
+                              type: integer
+                              example: 1
+                            option_name:
+                              type: string
+                              example: Happy
         '400':
           description: Missing/invalid parameters
         '401':
@@ -172,19 +217,108 @@ paths:
               schema:
                 type: array
                 items:
-                  properties:
-                    log_id:
-                      type: integer
-                      example: 1
-                    log_time:
-                      type: string
-                      example: '2022-12-31 23:59'
-                    log_note:
-                      type: string
-                      example: Some Text About Log
-                    log_value:
-                      type: string
-                      example: null
+                  oneOf:
+                  - properties:
+                      log_id:
+                        type: integer
+                        example: 1
+                      log_time:
+                        type: string
+                        example: '2022-12-31 23:59'
+                      log_note:
+                        type: string
+                        example: Some Text About Log
+                      log_value:
+                        type: string
+                        example: 'Yes'
+                  - properties:
+                      log_id:
+                        type: integer
+                        example: 2
+                      log_time:
+                        type: string
+                        example: '2022-12-31 23:59'
+                      log_note:
+                        type: string
+                        example: Some Text About Log
+                      log_value:
+                        type: integer
+                        example: 1
+                  - properties:
+                      log_id:
+                        type: integer
+                        example: 3
+                      log_time:
+                        type: string
+                        example: '2022-12-31 23:59'
+                      log_note:
+                        type: string
+                        example: Some Text About Log
+                      log_value:
+                        type: decimal
+                        example: 1.23
+                  - properties:
+                      log_id:
+                        type: integer
+                        example: 4
+                      log_time:
+                        type: string
+                        example: '2022-12-31 23:59'
+                      log_note:
+                        type: string
+                        example: Some Text About Log
+                      log_value:
+                        type: object
+                        properties:
+                          hours:
+                            type: integer
+                            example: 1
+                          minutes:
+                            type: integer
+                            example: 2
+                          seconds:
+                            type: integer
+                            example: 3
+                  - properties:
+                      log_id:
+                        type: integer
+                        example: 5
+                      log_time:
+                        type: string
+                        example: '2022-12-31 23:59'
+                      log_note:
+                        type: string
+                        example: Some Text About Log
+                      log_value:
+                        type: object
+                        properties:
+                          option_id:
+                            type: integer
+                            example: 1
+                          option_name:
+                            type: string
+                            example: Happy
+                  - properties:
+                      log_id:
+                        type: integer
+                        example: 6
+                      log_time:
+                        type: string
+                        example: '2022-12-31 23:59'
+                      log_note:
+                        type: string
+                        example: Some Text About Log
+                      log_value:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            option_id:
+                              type: integer
+                              example: 1
+                            option_name:
+                              type: string
+                              example: Happy
         '400':
           description: Missing/invalid parameters
         '401':
@@ -237,20 +371,51 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tracker_name:
-                  type: string
-                  example: Mood
-                tracker_description:
-                  type: string
-                  example: My Mood Tracker
-                tracker_type_id:
-                  type: integer
-                  example: 5
-                tracker_options:
-                  type: array
-                  example: [Happy, Sad, Angry]
+              oneOf:
+              - type: object
+                properties:
+                  tracker_name:
+                    type: string
+                    example: Mood
+                  tracker_description:
+                    type: string
+                    example: Description of Mood Tracker
+                  tracker_type_id:
+                    type: integer
+                    example: 5
+                  tracker_options:
+                    type: array
+                    items:
+                      type: string
+                    example: 
+                    - Happy
+                    - Sad
+                    - Angry
+              - type: object
+                properties:
+                  tracker_name:
+                    type: string
+                    example: Running Tracker
+                  tracker_description:
+                    type: string
+                    example: Description of Running Tracker
+                  tracker_type_id:
+                    type: integer
+                    example: 2
+                  tracker_unit:
+                    type: string
+                    example: m
+              - type: object
+                properties:
+                  tracker_name:
+                    type: string
+                    example: Washing Clothes
+                  tracker_description:
+                    type: string
+                    example: Description of Washing Clothes Tracker
+                  tracker_type_id:
+                    type: integer
+                    example: 1
       responses:
         '200':
           description: Tracker Added Successfully
@@ -291,17 +456,78 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                log_time:
-                  type: string
-                  example: '2022-03-04 02:05'
-                log_note:
-                  type: string
-                  example: Sample Log Note
-                log_value:
-                  type: array
-                  example: [2]
+              oneOf:
+              - type: object
+                properties:
+                  log_time:
+                    type: string
+                    example: '2022-03-04 02:05'
+                  log_note:
+                    type: string
+                    example: Sample Log Note
+                  log_value:
+                    type: string
+                    example: 'Yes'
+              - type: object
+                properties:
+                  log_time:
+                    type: string
+                    example: '2022-03-04 02:05'
+                  log_note:
+                    type: string
+                    example: Sample Log Note
+                  log_value:
+                    type: integer
+                    example: 1
+              - type: object
+                properties:
+                  log_time:
+                    type: string
+                    example: '2022-03-04 02:05'
+                  log_note:
+                    type: string
+                    example: Sample Log Note
+                  log_value:
+                    type: decimal
+                    example: 1.23
+              - type: object
+                properties:
+                  log_time:
+                    type: string
+                    example: '2022-03-04 02:05'
+                  log_note:
+                    type: string
+                    example: Sample Log Note
+                  log_value:
+                    type: integer
+                    example: 3600
+              - type: object
+                properties:
+                  log_time:
+                    type: string
+                    example: '2022-03-04 02:05'
+                  log_note:
+                    type: string
+                    example: Sample Log Note
+                  log_value:
+                    type: integer
+                    example: 5
+              - type: object
+                properties:
+                  log_time:
+                    type: string
+                    example: '2022-03-04 02:05'
+                  log_note:
+                    type: string
+                    example: Sample Log Note
+                  log_value:
+                    type: array
+                    items:
+                      type: integer
+                    example:
+                      - 1
+                      - 2
+                      - 4
       responses:
         '200':
           description: Log Added Successfully
@@ -340,7 +566,7 @@ paths:
             example: 1
       responses:
         '200':
-          description: Tracker Deleted Successfully
+          description: Tracker deleted successfully
         '400':
           description: Missing/invalid parameters
         '401':
@@ -371,7 +597,7 @@ paths:
             example: 1
       responses:
         '200':
-          description: Log Deleted Successfully
+          description: Log deleted successfully
         '400':
           description: Missing/invalid parameters
         '401':
