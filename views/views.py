@@ -20,6 +20,7 @@ from flask_login import login_required
 from flask_login import current_user
 from flask_login import login_user
 from flask_login import logout_user
+from sqlalchemy import desc, nullsfirst
 from datetime import datetime
 
 import matplotlib
@@ -288,7 +289,8 @@ def dashboard():
 @app.route("/trackers", methods=["GET"])
 @login_required
 def trackers():
-    trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
+    # trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()
+    trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).order_by(nullsfirst(desc(db.session.query(TrackerLogs.tl_time).filter(TrackerLogs.tl_tracker == TrackerModel.t_id).order_by(desc(TrackerLogs.tl_time))))).all()
     return render_template("trackers/trackers.html", user=current_user, trackers=trackers)
 
 
