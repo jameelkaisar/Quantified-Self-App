@@ -28,10 +28,14 @@
                                         <div class="form-group mb-4">
                                             <input type="password" minlength="4" maxlength="64" class="form-control form-control-lg" name="password" placeholder="Password" required>
                                         </div>
-                                        <input type="submit" value="Login" class="btn btn-lg btn-block btn-primary">
+                                        <div class="d-grid gap-2">
+                                            <input type="submit" value="Login" class="btn btn-lg btn-block btn-primary">
+                                        </div>
                                     </form>
                                     <hr class="my-4">
-                                    <a href="/register{% if request.args.get('next', None) %}?next={{ request.args.get('next') }}{% endif %}" class="btn btn-lg btn-block btn-primary">Create an account</a>
+                                    <div class="d-grid gap-2">
+                                        <a href="/register{% if request.args.get('next', None) %}?next={{ request.args.get('next') }}{% endif %}" class="btn btn-lg btn-block btn-primary">Create an account</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
