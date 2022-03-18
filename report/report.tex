@@ -1,0 +1,93 @@
+\documentclass{article}
+
+\usepackage{url}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    {\huge\bfseries Quantified Self App\par}
+    \vspace{1cm}
+    {\LARGE \textbf{Capstone Project for Modern Application Development I Course\\(IIT Madras)}\\}
+    \vspace{2cm}
+    {\LARGE \textbf{Jameel Kaisar Khan}\\}
+    {\LARGE \textbf{21F1006786}\\}
+    {\LARGE \textbf{\today}\\}
+    \vfill
+\end{titlepage}
+
+\newpage
+
+\vspace{1cm}
+{\huge \textbf{Main Features}}\\
+\begin{itemize}
+    \item Basic User Model with Password Based Authentication
+    \item 5 Different Tracker Types: \verb|Boolean|, \verb|Integer|, \verb|Decimal|, \verb|Duration|, \verb|Single Select|, \verb|Multi Select|
+    \item Add, Edit, Delete, View Trackers
+    \item Add, Edit, Delete, View Tracker Logs
+    \item Dashboard with Option to Export Data as \verb|CSV| and \verb|TSV|
+    \item Dashboard with Trendlines
+    \item Token for API Validation
+    \item Get Tracker Types, Trackers, Logs, Trendlines using API
+    \item Add Trackers, Logs using API
+    \item Delete Trackers, Logs using API
+    \item Special Focus on UI/UX
+\end{itemize}
+
+\vspace{1cm}
+{\huge \textbf{Libraries and Frameworks}}\\
+\begin{itemize}
+    \item Python Libraries
+        \begin{itemize}
+            \item Flask, Flask-Login, Flask-RESTful, Flask-SQLAlchemy
+            \item Werkzeug, SQLAlchemy, Jinja2
+            \item matplotlib, numpy
+            \item humanize, python-dotenv, requests
+        \end{itemize}
+    \item Database
+        \begin{itemize}
+            \item SQLite3
+        \end{itemize}
+    \item Frontend
+        \begin{itemize}
+            \item HTML5, CSS3, Javascript
+            \item Bootstrap
+        \end{itemize}
+    \item API
+        \begin{itemize}
+            \item OpenAPI, SwaggerUI
+        \end{itemize}
+    \item Version Control
+        \begin{itemize}
+            \item Git, GitHub
+        \end{itemize}
+\end{itemize}
+
+\vspace{1cm}
+{\huge \textbf{Issues}}\\
+\begin{itemize}
+    \item Trendlines generated are stored in \verb|static| folder which is accessible to everyone. We could add some kind of authentication to allow only specific users to access the generated trendlines.
+    \item It is not clear what to do to the existing logs when a user deletes an option in case of \verb|Single Select| and \verb|Multi Select| Tracker Types. It may depend on the user preference. So, I did not implement this option.
+\end{itemize}
+
+\vspace{1cm}
+{\huge \textbf{GitHub Link}}\\
+\begin{itemize}
+    \item \textbf{\url{https://github.com/JameelKaisar/Quantified-Self-App}}
+\end{itemize}
+
+\vspace{1cm}
+{\huge \textbf{Replit Link}}\\
+\begin{itemize}
+    \item \textbf{\url{https://replit.com/@JameelKaisar/Quantified-Self-App}}
+\end{itemize}
+
+\vspace{1cm}
+{\huge \textbf{Video Link}}\\
+\begin{itemize}
+    \item \textbf{\url{<Pending>}}
+\end{itemize}
+
+\end{document}

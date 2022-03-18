@@ -290,7 +290,7 @@ def dashboard():
 @login_required
 def trackers():
     try:
-        trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).order_by(nullsfirst(desc(db.session.query(TrackerLogs.tl_time).filter(TrackerLogs.tl_tracker == TrackerModel.t_id).order_by(desc(TrackerLogs.tl_time))))).all()
+        trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).order_by(nullsfirst(desc(db.session.query(TrackerLogs.tl_time).filter(TrackerLogs.tl_tracker == TrackerModel.t_id).order_by(desc(TrackerLogs.tl_time)).scalar_subquery()))).all()
     except:
         # For Replit
         trackers = TrackerModel.query.filter(TrackerModel.t_user == current_user.id).all()

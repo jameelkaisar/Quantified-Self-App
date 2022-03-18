@@ -16,3 +16,6 @@ build/
 /static/userdata/
 /.env
 /database/dev_db.sqlite3
+/report/_minted-report/
+/report/report.aux
+/report/report.log
