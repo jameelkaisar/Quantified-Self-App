@@ -15,3 +15,4 @@ build/
 
 /static/userdata/
 /.env
+/database/dev_db.sqlite3

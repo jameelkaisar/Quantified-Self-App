@@ -17,15 +17,19 @@ servers:
         default: 'http'
         enum:
           - 'http'
+          - 'https'
       host:
-        default: '127.0.0.1'
+        default: 'localhost'
         enum:
-          - '127.0.0.1'
           - 'localhost'
+          - '127.0.0.1'
+          - 'quantified-self-app.jameelkaisar.repl.co'
       port:
         default: '8000'
         enum:
           - '8000'
+          - '80'
+          - '443'
       version:
         default: 'v1'
         enum:
