@@ -28,6 +28,11 @@ cd Quantified-Self-App
 pip install virtualenv
 ```
 
+### Add `virtualenv` to PATH (Unix only)
+```
+export PATH="$HOME/.local/bin:$PATH"
+```
+
 ### Create a virtual environment
 ```
 virtualenv venv
