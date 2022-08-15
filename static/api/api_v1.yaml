@@ -24,6 +24,7 @@ servers:
           - 'localhost'
           - '127.0.0.1'
           - 'quantified-self-app.jameelkaisar.repl.co'
+          - 'quantified-self-app.ajmiakh.repl.co'
       port:
         default: '8000'
         enum:
