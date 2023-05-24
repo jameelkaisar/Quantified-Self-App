@@ -6,7 +6,7 @@ humanize==4.0.0
 matplotlib==3.5.1
 numpy==1.22.2
 python-dotenv==0.19.2
-requests==2.27.1
+requests==2.31.0
 
 aniso8601==9.0.1
 certifi==2022.12.7
